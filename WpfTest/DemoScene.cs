@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Framework.WpfInterop;
@@ -24,6 +25,7 @@ namespace WpfTest
 		private VertexDeclaration _vertexDeclaration;
 		private Matrix _viewMatrix;
 		private Matrix _worldMatrix;
+		private bool _disposed;
 
 		#endregion
 
@@ -31,6 +33,11 @@ namespace WpfTest
 
 		protected override void Dispose(bool disposing)
 		{
+			if (_disposed)
+				return;
+
+			_disposed = true;
+
 			_vertexBuffer.Dispose();
 			_vertexBuffer = null;
 
