@@ -12,7 +12,7 @@ namespace MonoGame.Framework.WpfInterop
 	/// <summary>
 	/// Host a Direct3D 11 scene.
 	/// </summary>
-	public class D3D11Host : Image, IDisposable
+	public abstract class D3D11Host : Image, IDisposable
 	{
 		#region Fields
 
@@ -43,7 +43,7 @@ namespace MonoGame.Framework.WpfInterop
 		/// <summary>
 		/// Initializes a new instance of the <see cref="D3D11Host"/> class.
 		/// </summary>
-		public D3D11Host()
+		protected D3D11Host()
 		{
 			// defaulting to fill as that's what's needed in most cases
 			Stretch = Stretch.Fill;
@@ -51,11 +51,6 @@ namespace MonoGame.Framework.WpfInterop
 			_timer = new Stopwatch();
 			Loaded += OnLoaded;
 			Unloaded += OnUnloaded;
-		}
-
-		~D3D11Host()
-		{
-			Dispose(false);
 		}
 
 		#endregion
@@ -101,15 +96,14 @@ namespace MonoGame.Framework.WpfInterop
 
 		public void Dispose()
 		{
-			Dispose(true);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
 			if (_disposed)
 				return;
 			_disposed = true;
+
+			Dispose(true);
 		}
+
+		protected abstract void Dispose(bool disposing);
 
 		protected virtual void Initialize()
 		{

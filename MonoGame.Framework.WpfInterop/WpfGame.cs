@@ -7,7 +7,7 @@ namespace MonoGame.Framework.WpfInterop
 	/// <summary>
 	/// The replacement for <see cref="Game"/>. Unlike <see cref="Game"/> the <see cref="WpfGame"/> is a WPF control and can be hosted inside WPF windows.
 	/// </summary>
-	public class WpfGame : D3D11Host
+	public abstract class WpfGame : D3D11Host
 	{
 		#region Fields
 
@@ -20,7 +20,7 @@ namespace MonoGame.Framework.WpfInterop
 		/// <summary>
 		/// Creates a new instance of a game host panel.
 		/// </summary>
-		public WpfGame(string contentDir = "Content")
+		protected WpfGame(string contentDir = "Content")
 		{
 			if (string.IsNullOrEmpty(contentDir))
 				throw new ArgumentNullException(nameof(contentDir));
@@ -69,7 +69,6 @@ namespace MonoGame.Framework.WpfInterop
 		/// <param name="disposing"></param>
 		protected override void Dispose(bool disposing)
 		{
-			base.Dispose(disposing);
 			Content?.Dispose();
 
 			UnloadContent();
