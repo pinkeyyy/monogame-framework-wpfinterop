@@ -27,8 +27,6 @@ public class MyGame : WpfGame
 
 	protected override void Initialize()
 	{
-		base.Initialize();
-
 		// must be initialized. required by Content loading and rendering (will add itself to the Services)
 		_graphicsDeviceManager = new WpfGraphicsDeviceService(this);
 
@@ -36,6 +34,9 @@ public class MyGame : WpfGame
 		// this means every WpfGame control will have it's own keyboard & mouse manager which will only react if the mouse is in the control
 		_keyboard = new WpfKeyboard(this);
 		_mouse = new WpfMouse(this);
+		
+		// must be called after the WpfGraphicsDeviceService instance was created
+		base.Initialize();
 	}
 
 	protected override void Update(GameTime time)
