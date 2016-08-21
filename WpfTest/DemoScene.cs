@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Framework.WpfInterop;
@@ -9,7 +8,7 @@ namespace WpfTest
 {
 	/// <summary>
 	/// Source: http://msdn.microsoft.com/en-us/library/bb203926(v=xnagamestudio.40).aspx
-	/// Note that this is just an example implementation of <see cref="D3D11Host"/>. Create your own renderer by deriving a new class from <see cref="D3D11Host"/> and overriding its <see cref="D3D11Host.Render"/> method.
+	/// Note that this is just an example implementation of <see cref="WpfGame"/>.
 	/// </summary>
 	public class DemoScene : WpfGame
 	{

@@ -80,10 +80,7 @@ namespace MonoGame.Framework.WpfInterop
 		/// Gets the graphics device.
 		/// </summary>
 		/// <value>The graphics device.</value>
-		public GraphicsDevice GraphicsDevice
-		{
-			get { return _graphicsDevice; }
-		}
+		public GraphicsDevice GraphicsDevice => _graphicsDevice;
 
 		/// <summary>
 		/// Default services collection.
