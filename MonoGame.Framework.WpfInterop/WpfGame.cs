@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using System;
+using System.Collections.Generic;
 
 namespace MonoGame.Framework.WpfInterop
 {
@@ -12,6 +13,8 @@ namespace MonoGame.Framework.WpfInterop
 		#region Fields
 
 		private ContentManager _content;
+		private readonly List<IUpdateable> _sortedUpdateables;
+		private readonly List<IDrawable> _sortedDrawables;
 
 		#endregion
 
@@ -27,11 +30,19 @@ namespace MonoGame.Framework.WpfInterop
 
 			Content = new ContentManager(Services, contentDir);
 			Focusable = true;
+			Components = new GameComponentCollection();
+			_sortedDrawables = new List<IDrawable>();
+			_sortedUpdateables = new List<IUpdateable>();
 		}
 
 		#endregion
 
 		#region Properties
+
+		/// <summary>
+		/// Mirrors the
+		/// </summary>
+		public GameComponentCollection Components { get; }
 
 		/// <summary>
 		/// The content manager for this game.
@@ -72,6 +83,12 @@ namespace MonoGame.Framework.WpfInterop
 			Content?.Dispose();
 
 			UnloadContent();
+
+			foreach (var c in Components)
+			{
+				var disp = c as IDisposable;
+				disp?.Dispose();
+			}
 		}
 
 		/// <summary>
@@ -80,6 +97,11 @@ namespace MonoGame.Framework.WpfInterop
 		/// <param name="gameTime"></param>
 		protected virtual void Draw(GameTime gameTime)
 		{
+			for (int i = 0; i < _sortedDrawables.Count; i++)
+			{
+				if (_sortedDrawables[i].Visible)
+					_sortedDrawables[i].Draw(gameTime);
+			}
 		}
 
 		/// <summary>
@@ -88,6 +110,16 @@ namespace MonoGame.Framework.WpfInterop
 		protected override void Initialize()
 		{
 			base.Initialize();
+
+			// hook events now (graphics, etc. is now loaded)
+			// any components added prior we insert manually
+			foreach (var c in Components)
+			{
+				ComponentAdded(this, new GameComponentCollectionEventArgs(c));
+			}
+			Components.ComponentAdded += ComponentAdded;
+			Components.ComponentRemoved += ComponentRemoved;
+
 			LoadContent();
 		}
 
@@ -96,6 +128,7 @@ namespace MonoGame.Framework.WpfInterop
 		/// </summary>
 		protected virtual void LoadContent()
 		{
+
 		}
 
 		/// <summary>
@@ -122,7 +155,70 @@ namespace MonoGame.Framework.WpfInterop
 		/// <param name="gameTime"></param>
 		protected virtual void Update(GameTime gameTime)
 		{
+			for (int i = 0; i < _sortedUpdateables.Count; i++)
+			{
+				if (_sortedUpdateables[i].Enabled)
+					_sortedUpdateables[i].Update(gameTime);
+			}
 		}
+
+		private void ComponentRemoved(object sender, GameComponentCollectionEventArgs args)
+		{
+			var update = args.GameComponent as IUpdateable;
+			if (update != null)
+			{
+				update.UpdateOrderChanged -= UpdateOrderChanged;
+				_sortedUpdateables.Remove(update);
+			}
+			var draw = args.GameComponent as IDrawable;
+			if (draw != null)
+			{
+				draw.DrawOrderChanged -= DrawOrderChanged;
+				_sortedDrawables.Remove(draw);
+			}
+		}
+
+		private void ComponentAdded(object sender, GameComponentCollectionEventArgs args)
+		{
+			// monogame also calls initialize
+			// I would have assumed that there'd be some property IsInitialized to prevent multiple calls to Initialize, but there isn't
+			args.GameComponent.Initialize();
+			var update = args.GameComponent as IUpdateable;
+			if (update != null)
+			{
+				_sortedUpdateables.Add(update);
+				update.UpdateOrderChanged += UpdateOrderChanged;
+				SortUpdatables();
+			}
+			var draw = args.GameComponent as IDrawable;
+			if (draw != null)
+			{
+				_sortedDrawables.Add(draw);
+				draw.DrawOrderChanged += DrawOrderChanged;
+				SortDrawables();
+			}
+		}
+
+		private void SortDrawables()
+		{
+			_sortedDrawables.Sort((a, b) => a.DrawOrder.CompareTo(b.DrawOrder));
+		}
+
+		private void DrawOrderChanged(object sender, EventArgs e)
+		{
+			SortDrawables();
+		}
+
+		private void UpdateOrderChanged(object sender, EventArgs eventArgs)
+		{
+			SortUpdatables();
+		}
+
+		private void SortUpdatables()
+		{
+			_sortedUpdateables.Sort((a, b) => a.UpdateOrder.CompareTo(b.UpdateOrder));
+		}
+
 
 		#endregion
 	}
