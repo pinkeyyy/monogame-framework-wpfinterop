@@ -40,10 +40,16 @@ namespace WpfTest
 			_spriteBatch.Draw(_texture, new Rectangle(posX, posY, 100, 20), null, Color.White, _rotation, new Vector2(_texture.Width, _texture.Height) / 2f, SpriteEffects.None, 0);
 			_spriteBatch.End();
 
+			// this base.Draw call will draw "all" components (we only added one)
+			// since said component will use a spritebatch to render we need to let it draw before we reset the GraphicsDevice
+			// otherwise it will just alter the state again and fuck over all the other hosts
+			base.Draw(time);
+
 			GraphicsDevice.BlendState = blend;
 			GraphicsDevice.DepthStencilState = depth;
 			GraphicsDevice.RasterizerState = raster;
 			GraphicsDevice.SamplerStates[0] = sampler;
+
 		}
 
 		protected override void Initialize()
@@ -57,6 +63,8 @@ namespace WpfTest
 
 			_keyboard = new WpfKeyboard(this);
 			_mouse = new WpfMouse(this);
+
+			Components.Add(new DrawMeComponent(this));
 		}
 
 		protected override void Update(GameTime time)
@@ -68,6 +76,7 @@ namespace WpfTest
 			{
 				_rotation += (float)(2f * time.ElapsedGameTime.TotalSeconds);
 			}
+			base.Update(time);
 		}
 
 		#endregion

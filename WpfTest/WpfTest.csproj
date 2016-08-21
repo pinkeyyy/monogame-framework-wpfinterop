@@ -74,6 +74,7 @@
     </Compile>
     <Compile Include="ContentScene.cs" />
     <Compile Include="DemoScene.cs" />
+    <Compile Include="DrawMeComponent.cs" />
     <Compile Include="SecondWindow.xaml.cs">
       <DependentUpon>SecondWindow.xaml</DependentUpon>
     </Compile>
