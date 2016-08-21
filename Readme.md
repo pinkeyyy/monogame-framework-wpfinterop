@@ -57,12 +57,34 @@ Now you can use it in any of your WPF forms:
 
 &lt;MyGame Width="800" Height="480" />
 
+# Features
+
+Some of the Monogame classes where incompatible with WPF (Game always spawns it's own window, Mouse didn't care which control had focus, ..) so they had to be reimplemented.
+
+As a convention, all reimplemented classes will have the prefix Wpf:
+
+* WpfGame as a replacement for Game class. Note that due to WPF limitations the WpfGame will always run at a maximum 60 FPS in fixed step (Update and Draw are always called, no Updates are skipped)
+* WpfMouse and WpfKeyboard provide input per host instance. When multiple WpfGame instances are spawned, only one will receive input at any time
+* WpfGraphicsDeviceService as a dummy implementation of IGraphicsDeviceService to prevent Content manager from crashing (it looks for IGraphicsDeviceService inside Services)
+* WpfGameComponent and WpfDrawableGameComponent as a replacement for the original ones which required a reference to a Game instance
 
 # Roadmap
 
 * Properly implement GraphicsDeviceService (call all events when appropriate)
 
 # Changelog
+
+**v1.3.0**
+
+* Added support for GameComponents (WpfGameComponent and WpfDrawableGameComponent) that mirror the behaviour of the original ones (which cannot be used due to requiring a reference to Game)
+
+**v1.2.2**
+
+* fixed mistake in readme
+
+**v1.2.1**
+
+* Bugfix in demoscene
 
 **v1.2.0**
 
