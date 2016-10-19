@@ -74,6 +74,10 @@ As a convention, all reimplemented classes will have the prefix Wpf:
 
 # Changelog
 
+**v1.3.1**
+
+* Moved to Gitlab and updated all links to Gitlab
+
 **v1.3.0**
 
 * Added support for GameComponents (WpfGameComponent and WpfDrawableGameComponent) that mirror the behaviour of the original ones (which cannot be used due to requiring a reference to Game)

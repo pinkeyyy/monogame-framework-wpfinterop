@@ -7,7 +7,7 @@ You can host as many MonoGame controls in Wpf as you want. Note that WPF is limi
 # Important changes
 
 1. Derive from MonoGame.Framework.WpfInterop.WpfGame instead of Microsoft.Xna.Framework.Game
-2. Keyboard and Mouse events from MonoGame classes will not work with this implementation. Use WpfKeyboard and WpfMouse instead. Read this issue for details: https://github.com/MarcStan/MonoGame.Framework.WpfInterop/issues/1
+2. Keyboard and Mouse events from MonoGame classes will not work with this implementation. Use WpfKeyboard and WpfMouse instead. Read this issue for details: https://gitlab.com/MarcStan/MonoGame.Framework.WpfInterop/issues/1
 3. GraphicsDeviceManager can no longer be used (it requires a reference to Game). Use WpfGraphicsDeviceService instead (it requires a reference to WpfGame/D3D11Host).
 
 ## Example
