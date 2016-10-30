@@ -19,6 +19,8 @@ namespace WpfTest
 		private float _rotation;
 		private SpriteBatch _spriteBatch;
 		private Texture2D _texture;
+		private MouseState _previousMouseState;
+		private SpriteFont _font;
 
 		#endregion
 
@@ -38,6 +40,10 @@ namespace WpfTest
 
 			_spriteBatch.Begin();
 			_spriteBatch.Draw(_texture, new Rectangle(posX, posY, 100, 20), null, Color.White, _rotation, new Vector2(_texture.Width, _texture.Height) / 2f, SpriteEffects.None, 0);
+
+			// mouse diagnostics
+			_spriteBatch.DrawString(_font, $"Prev Scrollwheel: {_previousMouseState.ScrollWheelValue}", new Vector2(5, 5), Color.White);
+			_spriteBatch.DrawString(_font, $"Curr Scrollwheel: {_mouseState.ScrollWheelValue}", new Vector2(5, 25), Color.White);
 			_spriteBatch.End();
 
 			// this base.Draw call will draw "all" components (we only added one)
@@ -59,6 +65,14 @@ namespace WpfTest
 
 			_texture = Content.Load<Texture2D>("hello");
 
+			// default font is pre-compiled font for Windows (Arial 12, ? as default char)
+			// I get away with this because
+			// 1) it's just a demo application
+			// 2) it can only run on windows/directX anyway (interop for WPF afterall)
+			// 3) This means it doesn't require content compiler to be installed on any machine that runs this demo
+
+			_font = Content.Load<SpriteFont>("DefaultFont");
+
 			_spriteBatch = new SpriteBatch(GraphicsDevice);
 
 			_keyboard = new WpfKeyboard(this);
@@ -69,6 +83,7 @@ namespace WpfTest
 
 		protected override void Update(GameTime time)
 		{
+			_previousMouseState = _mouseState;
 			_mouseState = _mouse.GetState();
 			_keyboardState = _keyboard.GetState();
 
