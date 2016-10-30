@@ -196,8 +196,33 @@ namespace MonoGame.Framework.WpfInterop
 			_loaded = true;
 			InitializeGraphicsDevice();
 			InitializeImageSource();
-			Initialize();
-			StartRendering();
+
+			// workaround for exceptions in Onloaded being swallowed by default on x64
+			// https://stackoverflow.com/questions/4807122/wpf-showdialog-swallowing-exceptions-during-window-load
+			try
+			{
+				// initialize runs in userland
+				// user can fuck up anything an have an exception thrown
+				// if it throws, we don't want rendering to start
+				Initialize();
+				StartRendering();
+			}
+			catch (Exception ex)
+			{
+				if (Environment.Is64BitOperatingSystem || Environment.Is64BitProcess)
+				{
+					// catch and rethrow because WPF just swallows it silently on x64..
+					BackgroundWorker deCancerifyWpf = new BackgroundWorker();
+					deCancerifyWpf.DoWork += (e, arg) => { arg.Result = arg.Argument; };
+					deCancerifyWpf.RunWorkerCompleted += (e, arg) =>
+					{
+						// who needs a proper stacktrace anyway
+						// at least we get to see the exception..
+						throw new Exception("Initialize failed, see inner exception for details.", (Exception)arg.Result);
+					};
+					deCancerifyWpf.RunWorkerAsync(ex);
+				}
+			}
 		}
 
 		private void OnRendering(object sender, EventArgs eventArgs)
