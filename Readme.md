@@ -74,6 +74,11 @@ As a convention, all reimplemented classes will have the prefix Wpf:
 
 # Changelog
 
+**v1.3.2**
+
+* Fixed mouse scrollwheel value incorrectly resetting whenever any other mouse event fired (move, button down/up)
+* Exceptions thrown in Initialize() are no longer silently swallowed (bug in x64 WPF OnLoaded exceptions handling). Exception is now rethrown manually
+
 **v1.3.1**
 
 * Moved to Gitlab and updated all links to Gitlab
