@@ -139,13 +139,7 @@ namespace MonoGame.Framework.WpfInterop.Input
 						return HitTestResultBehavior.Continue;
 					}, new PointHitTestParameters(pos));
 
-					if (hit)
-					{
-						// TODO: technically this doesn't account for any elements that are overlayed onto our control (e.g. textbox overlayed onto our control will never be able to receive focus this way)
-						// that is what IsMouseDirectlyOver is supposed to check, but it doesn't work correctly when mouse is captured..
-						// its possible that the mouse is over a control that is layed ontop of ours, thus we should consider our control to be not hit, but I have no idea how to check for that
-					}
-					else
+					if (!hit)
 					{
 						// outside the hitbox
 
