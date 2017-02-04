@@ -68,11 +68,28 @@ As a convention, all reimplemented classes will have the prefix Wpf:
 * WpfGraphicsDeviceService as a dummy implementation of IGraphicsDeviceService to prevent Content manager from crashing (it looks for IGraphicsDeviceService inside Services)
 * WpfGameComponent and WpfDrawableGameComponent as a replacement for the original ones which required a reference to a Game instance
 
+## Mouse behaviour
+
+### Focus
+
+By default the game takes focus on mouse (h)over. This can be disabled via the FocusOnMouseOver property of WpfGame
+
+### Mouse capture
+
+By default the game captures the mouse. This allows capture of mouse events outside the game (e.g. user holds and drags the mouse outside the window, then releases it -> game will still receive mouse up event). The downside is that no overlayed controls (e.g. textboxes) will ever receive focus.
+
+Alternatively this can be toggled of via CaptureMouseWithin property of WpfMouse and then allows focus on overlayed controls. Downside is that mouse events outside the game window are no longer registered (e.g. user holds and drags the mouse outside the window, then releases it -> game will still think the mouse is down until the window receives focus again)
+
 # Roadmap
 
 * Properly implement GraphicsDeviceService (call all events when appropriate)
 
 # Changelog
+
+**v1.4.0** (planned)
+
+* WpfGame now has "FocusOnMouseOver" which allows changing the behaviour (defaults to true).
+* WpfMouse now has "CaptureMouseWithin" which allows changing the capture behaviour (defaults to true).
 
 **v1.3.2**
 
