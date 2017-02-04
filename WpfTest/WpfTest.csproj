@@ -60,6 +60,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="WpfControlWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="SecondWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -75,6 +79,10 @@
     <Compile Include="ContentScene.cs" />
     <Compile Include="DemoScene.cs" />
     <Compile Include="DrawMeComponent.cs" />
+    <Compile Include="TextInputScene.cs" />
+    <Compile Include="WpfControlWindow.xaml.cs">
+      <DependentUpon>WpfControlWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SecondWindow.xaml.cs">
       <DependentUpon>SecondWindow.xaml</DependentUpon>
     </Compile>

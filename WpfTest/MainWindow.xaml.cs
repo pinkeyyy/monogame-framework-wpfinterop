@@ -24,6 +24,12 @@ namespace WpfTest
 			window.Show();
 		}
 
+		private void Launch_WpfControls(object sender, RoutedEventArgs e)
+		{
+			var window = new WpfControlWindow();
+			window.Show();
+		}
+
 		#endregion
 	}
 }
