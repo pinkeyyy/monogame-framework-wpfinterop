@@ -68,17 +68,6 @@ namespace MonoGame.Framework.WpfInterop
 			}
 		}
 
-		/// <summary>
-		/// Determines whether the game runs in fixed timestep or unlimited.
-		/// Since WPF is limited to 60 FPS this value is always true.
-		/// </summary>
-		public bool IsFixedTimeStep => true;
-
-		/// <summary>
-		/// The target time between two updates. WPF itself is limited to 60 FPS max, so that's what this value always returns.
-		/// </summary>
-		public TimeSpan TargetElapsedTime => TimeSpan.FromSeconds(1 / 60f);
-
 		#endregion
 
 		#region Methods

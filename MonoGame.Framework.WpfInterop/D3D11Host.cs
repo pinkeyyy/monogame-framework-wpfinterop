@@ -18,8 +18,7 @@ namespace MonoGame.Framework.WpfInterop
 
 		private static readonly object _graphicsDeviceLock = new object();
 
-		// Render timing:
-		private readonly Stopwatch _timer;
+		private bool _isRendering;
 
 		// The Direct3D 11 device (shared by all D3D11Host elements):
 		private static GraphicsDevice _graphicsDevice;
@@ -34,7 +33,6 @@ namespace MonoGame.Framework.WpfInterop
 		// Image source:
 		private RenderTarget2D _renderTarget;
 		private bool _resetBackBuffer;
-		private TimeSpan _timeSinceStart = TimeSpan.Zero;
 
 		#endregion
 
@@ -47,8 +45,7 @@ namespace MonoGame.Framework.WpfInterop
 		{
 			// defaulting to fill as that's what's needed in most cases
 			Stretch = Stretch.Fill;
-
-			_timer = new Stopwatch();
+			
 			Loaded += OnLoaded;
 			Unloaded += OnUnloaded;
 		}
@@ -56,6 +53,20 @@ namespace MonoGame.Framework.WpfInterop
 		#endregion
 
 		#region Properties
+
+		/// <summary>
+		/// Determines whether the game runs in fixed timestep or not.
+		/// The current implementation always calls Update and Draw after each other continuously.
+		/// Since the rendering is based on the WPF render thread the exact times at which it will be called cannot be guaranteed.
+		/// Therefore this value is always false.
+		/// </summary>
+		public bool IsFixedTimeStep => false;
+
+		/// <summary>
+		/// Gets or sets the target time between two updates. Defaults to 60fps.
+		/// WPF is limiting its rendering to 60 FPS max, therefore setting a target value higher than 60 fps (lower than TimeSpan.FromSeconds(1 / 60.0)) will have no effect.
+		/// </summary>
+		public TimeSpan TargetElapsedTime { get; set; } = TimeSpan.FromTicks(160000); // 60 fps
 
 		/// <summary>
 		/// Gets a value indicating whether the controls runs in the context of a designer (e.g.
@@ -227,7 +238,7 @@ namespace MonoGame.Framework.WpfInterop
 
 		private void OnRendering(object sender, EventArgs eventArgs)
 		{
-			if (!_timer.IsRunning)
+			if (!_isRendering)
 				return;
 
 			// Recreate back buffer if necessary.
@@ -236,15 +247,32 @@ namespace MonoGame.Framework.WpfInterop
 
 			// CompositionTarget.Rendering event may be raised multiple times per frame
 			// (e.g. during window resizing).
+			// this will be apparent when the last rendering time equals the new argument
 			var renderingEventArgs = (RenderingEventArgs)eventArgs;
-			if (_lastRenderingTime != renderingEventArgs.RenderingTime || _resetBackBuffer)
+			if (_lastRenderingTime != renderingEventArgs.RenderingTime)
 			{
-				_lastRenderingTime = renderingEventArgs.RenderingTime;
+				// get time since last actual rendering
 
+				var deltaTicks = renderingEventArgs.RenderingTime.Ticks - _lastRenderingTime.Ticks;
+				var delta = TimeSpan.FromTicks(deltaTicks);
+				// accumulate until time is greater than target time between frames
+				if (delta >= TargetElapsedTime)
+				{
+					// enough time has passed to draw a single frame
+
+					GraphicsDevice.SetRenderTarget(_renderTarget);
+					Render(new GameTime(renderingEventArgs.RenderingTime, delta));
+					GraphicsDevice.Flush();
+
+					_lastRenderingTime = renderingEventArgs.RenderingTime;
+				}
+			}
+			else if (_resetBackBuffer)
+			{
+				// always force render when backbuffer is reset (happens during resize due to size change)
+				// if we don't always render it will remain black until next frame is drawn
 				GraphicsDevice.SetRenderTarget(_renderTarget);
-				var diff = _timer.Elapsed - _timeSinceStart;
-				_timeSinceStart = _timer.Elapsed;
-				Render(new GameTime(_timer.Elapsed, diff));
+				Render(new GameTime(renderingEventArgs.RenderingTime, TimeSpan.Zero));
 				GraphicsDevice.Flush();
 			}
 
@@ -253,7 +281,7 @@ namespace MonoGame.Framework.WpfInterop
 
 			_resetBackBuffer = false;
 		}
-
+		
 		private void OnUnloaded(object sender, RoutedEventArgs eventArgs)
 		{
 			if (IsInDesignMode)
@@ -267,20 +295,20 @@ namespace MonoGame.Framework.WpfInterop
 
 		private void StartRendering()
 		{
-			if (_timer.IsRunning)
+			if (_isRendering)
 				return;
 
 			CompositionTarget.Rendering += OnRendering;
-			_timer.Start();
+			_isRendering = true;
 		}
 
 		private void StopRendering()
 		{
-			if (!_timer.IsRunning)
+			if (!_isRendering)
 				return;
 
 			CompositionTarget.Rendering -= OnRendering;
-			_timer.Stop();
+			_isRendering = false;
 		}
 
 		private void UnitializeImageSource()
