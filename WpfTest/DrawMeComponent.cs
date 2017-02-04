@@ -12,13 +12,17 @@ namespace WpfTest
 		private Texture2D _texture;
 		private SpriteBatch _spriteBatch;
 		private float _rotation;
-
 		#endregion
 
 		#region Constructors
 
-		public DrawMeComponent(WpfGame game) : base(game)
+		public DrawMeComponent(WpfGame game, Point? postion = null) : base(game)
 		{
+			if (postion.HasValue)
+			{
+				posX = postion.Value.X;
+				posY = postion.Value.Y;
+			}
 		}
 
 		#endregion
