@@ -17,7 +17,6 @@ namespace WpfTest
 		private KeyboardState _previousKeyboardState;
 		private WpfMouse _mouse;
 		private MouseState _mouseState;
-		private MouseState _previousMouseState;
 		private SpriteBatch _spriteBatch;
 		private SpriteFont _font;
 
@@ -41,8 +40,13 @@ namespace WpfTest
 
 			_spriteBatch.Begin();
 			_spriteBatch.DrawString(_font, $"Has focus: {IsFocused}", new Vector2(5, 50), Color.White);
-			_spriteBatch.DrawString(_font, $"Focus on: {(FocusOnMouseOver ? "mouse hover" : "first click")}. (Right click in game to toggle this)", new Vector2(5, 50 + 20), Color.White);
+			_spriteBatch.DrawString(_font, $"Focus on: {(FocusOnMouseOver ? "mouse hover" : "first click")}. (F1 in game to toggle this)", new Vector2(5, 50 + 20), Color.White);
 			_spriteBatch.DrawString(_font, $"Mouse position: X: {_mouseState.X}, Y: {_mouseState.Y}", new Vector2(5, 50 + 40), Color.White);
+			_spriteBatch.DrawString(_font, $"Mouse capture behaviour:: {(_mouse.CaptureMouseWithin ? "capture" : "no capture")}. (F2 in game to toggle this)", new Vector2(5, 50 + 60), Color.White);
+			_spriteBatch.DrawString(_font, "If mouse is captured, a pressed mouse that is dragged outside the window will still register the mouse up event.", new Vector2(5, 50 + 80), Color.White);
+			_spriteBatch.DrawString(_font, "Downside is that no overlayed controls are possible.", new Vector2(5, 50 + 100), Color.White);
+			_spriteBatch.DrawString(_font, "If mouse is not captured, these events won't register (game will think mouse is down until the cursor enters the game again).", new Vector2(5, 50 + 120), Color.White);
+			_spriteBatch.DrawString(_font, "Upside is that overlayed controls are possible.", new Vector2(5, 50 + 140), Color.White);
 			_spriteBatch.End();
 
 			// this base.Draw call will draw "all" components (we only added one)
@@ -83,11 +87,15 @@ namespace WpfTest
 			_mouseState = _mouse.GetState();
 			_keyboardState = _keyboard.GetState();
 
-			if (_mouseState.RightButton == ButtonState.Pressed && _previousMouseState.RightButton == ButtonState.Released)
+			if (KeyPressed(Keys.F1))
 			{
 				FocusOnMouseOver = !FocusOnMouseOver;
 			}
-			if (_keyboardState.IsKeyDown(Keys.Delete))
+			if (KeyPressed(Keys.F2))
+			{
+				_mouse.CaptureMouseWithin = !_mouse.CaptureMouseWithin;
+			}
+			if (KeyPressed(Keys.Delete))
 			{
 				// clear message
 				EnteredMessage = "";
@@ -95,18 +103,16 @@ namespace WpfTest
 			else
 			{
 				var sb = new StringBuilder();
-				var currentKeys = _keyboardState.GetPressedKeys();
-				var previousKeys = _previousKeyboardState.GetPressedKeys();
 				for (int i = (int)Keys.A; i <= (int)Keys.Z; i++)
 				{
-					if (previousKeys.Contains((Keys)i) && !currentKeys.Contains((Keys)i))
+					if (KeyPressed((Keys)i))
 					{
 						// key pressed, add key to queue
 						sb.Append(((char)i));
 
 					}
 				}
-				if (previousKeys.Contains(Keys.Space) && !currentKeys.Contains(Keys.Space))
+				if (KeyPressed(Keys.Space))
 				{
 					sb.Append(' ');
 				}
@@ -114,9 +120,12 @@ namespace WpfTest
 				EnteredMessage += sb.ToString().ToLower();
 			}
 			_previousKeyboardState = _keyboardState;
-			_previousMouseState = _mouseState;
 			base.Update(time);
 		}
 
+		private bool KeyPressed(Keys k)
+		{
+			return _previousKeyboardState.GetPressedKeys().Contains(k) && !_keyboardState.GetPressedKeys().Contains(k);
+		}
 	}
 }
