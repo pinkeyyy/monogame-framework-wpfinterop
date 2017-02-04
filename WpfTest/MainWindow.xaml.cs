@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 
 namespace WpfTest
 {
@@ -12,6 +13,7 @@ namespace WpfTest
 		public MainWindow()
 		{
 			InitializeComponent();
+			CinematicExperience.TargetElapsedTime = TimeSpan.FromSeconds(1 / 30.0);
 		}
 
 		#endregion

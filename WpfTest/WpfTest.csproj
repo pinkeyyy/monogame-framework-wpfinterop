@@ -79,7 +79,9 @@
     <Compile Include="ContentScene.cs" />
     <Compile Include="DemoScene.cs" />
     <Compile Include="DrawMeComponent.cs" />
+    <Compile Include="FpsComponent.cs" />
     <Compile Include="TextInputScene.cs" />
+    <Compile Include="TimingComponent.cs" />
     <Compile Include="WpfControlWindow.xaml.cs">
       <DependentUpon>WpfControlWindow.xaml</DependentUpon>
     </Compile>

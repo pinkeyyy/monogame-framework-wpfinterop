@@ -63,10 +63,30 @@ namespace WpfTest
 				pass.Apply();
 				GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, 12);
 			}
+
+			// since we share the GraphicsDevice with all hosts, we need to save and reset the states
+			// this has to be done because spriteBatch internally sets states and doesn't reset themselves, fucking over any 3D rendering (which happens in the DemoScene)
+
+			var blend = GraphicsDevice.BlendState;
+			var depth = GraphicsDevice.DepthStencilState;
+			var raster = GraphicsDevice.RasterizerState;
+			var sampler = GraphicsDevice.SamplerStates[0];
+
+			base.Draw(time);
+
+			GraphicsDevice.BlendState = blend;
+			GraphicsDevice.DepthStencilState = depth;
+			GraphicsDevice.RasterizerState = raster;
+			GraphicsDevice.SamplerStates[0] = sampler;
 		}
 
 		protected override void Initialize()
 		{
+			var gds = new WpfGraphicsDeviceService(this);
+			Components.Add(new FpsComponent(this));
+			Components.Add(new TimingComponent(this));
+
+
 			float tilt = MathHelper.ToRadians(0);  // 0 degree angle
 												   // Use the world matrix to tilt the cube along x and y axes.
 			_worldMatrix = Matrix.CreateRotationX(tilt) * Matrix.CreateRotationY(tilt);
@@ -206,12 +226,16 @@ namespace WpfTest
 
 			_keyboard = new WpfKeyboard(this);
 			_mouse = new WpfMouse(this);
+
+			base.Initialize();
 		}
 
 		protected override void Update(GameTime gameTime)
 		{
 			_mouseState = _mouse.GetState();
 			_keyboardState = _keyboard.GetState();
+
+			base.Update(gameTime);
 		}
 
 		#endregion
