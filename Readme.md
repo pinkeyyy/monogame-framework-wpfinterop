@@ -80,6 +80,63 @@ By default the game captures the mouse. This allows capture of mouse events outs
 
 Alternatively this can be toggled of via CaptureMouseWithin property of WpfMouse and then allows focus on overlayed controls. Downside is that mouse events outside the game window are no longer registered (e.g. user holds and drags the mouse outside the window, then releases it -> game will still think the mouse is down until the window receives focus again)
 
+# Gotchas
+
+## RenderTargets
+
+Rendertargets work slightly different in this WPF interop.
+
+In a normal monogame the rendertarget would be used like this:
+
+```
+
+	// Draw into rendertarget
+	GraphicsDevice.SetRenderTarget(_rendertarget);
+	GraphicsDevice.Clear(Color.Transparent);
+	_spriteBatch.Begin();
+	_spriteBatch.Draw(_texture, Vector2.Zero, Color.White);
+	_spriteBatch.End();
+
+	// setting null means we want to draw to the backbuffer again
+	GraphicsDevice.SetRenderTarget(null);
+
+
+	// these draw calls will now render onto backbuffer
+	GraphicsDevice.Clear(Color.CornflowerBlue);
+	_spriteBatch.Begin();
+	_spriteBatch.Draw(this.rendertarget, Vector2.Zero, Color.White);
+	_spriteBatch.End();
+```
+
+** The reason is that the interop sample cannot use the backbuffer (null) and instead uses it's own rendertarget.**
+
+So the code needs to look like this instead:
+
+
+```
+
+	// get the wpf rendertarget
+	var wpfRenderTarget = (RenderTarget2D)GraphicsDevice.GetRenderTargets()[0].RenderTarget;
+
+	// Draw into rendertarget
+	GraphicsDevice.SetRenderTarget(_rendertarget);
+	GraphicsDevice.Clear(Color.Transparent);
+	_spriteBatch.Begin();
+	_spriteBatch.Draw(_texture, Vector2.Zero, Color.White);
+	_spriteBatch.End();
+
+	// instead of setting null, set it back to the wpf rendertarget
+	GraphicsDevice.SetRenderTarget(wpfRenderTarget);
+
+
+	// these draw calls will now render onto backbuffer
+	GraphicsDevice.Clear(Color.CornflowerBlue);
+	_spriteBatch.Begin();
+	_spriteBatch.Draw(this.rendertarget, Vector2.Zero, Color.White);
+	_spriteBatch.End();
+```
+
+
 # Roadmap
 
 * Properly implement GraphicsDeviceService (call all events when appropriate)
@@ -88,8 +145,9 @@ Alternatively this can be toggled of via CaptureMouseWithin property of WpfMouse
 
 **v1.4.0** (planned)
 
-* WpfGame now has "FocusOnMouseOver" which allows changing the behaviour (defaults to true).
-* WpfMouse now has "CaptureMouseWithin" which allows changing the capture behaviour (defaults to true).
+* WpfGame now has "FocusOnMouseOver" which allows changing the behaviour (defaults to true)
+* WpfMouse now has "CaptureMouseWithin" which allows changing the capture behaviour (defaults to true)
+* TargetElapsedTime can now be set by the user to reduce the framerate if desired (defaults to 60 fps)
 
 **v1.3.2**
 
