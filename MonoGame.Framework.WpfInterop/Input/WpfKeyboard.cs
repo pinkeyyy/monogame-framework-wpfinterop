@@ -16,7 +16,7 @@ namespace MonoGame.Framework.WpfInterop.Input
 	{
 		#region Fields
 
-		private readonly IInputElement _focusElement;
+		private readonly WpfGame _focusElement;
 
 		#endregion
 
@@ -26,7 +26,7 @@ namespace MonoGame.Framework.WpfInterop.Input
 		/// Creates a new instance of the keyboard helper.
 		/// </summary>
 		/// <param name="focusElement">The element that will be used as the focus point. Provide your implementation of <see cref="WpfGame"/> here.</param>
-		public WpfKeyboard(IInputElement focusElement)
+		public WpfKeyboard(WpfGame focusElement)
 		{
 			if (focusElement == null)
 				throw new ArgumentNullException(nameof(focusElement));
@@ -52,7 +52,13 @@ namespace MonoGame.Framework.WpfInterop.Input
 				if (WindowHelper.IsControlOnActiveWindow(_focusElement))
 				{
 					// however, only focus if we are the active window, otherwise the window will become active and pop into foreground just by hovering the mouse over the game panel
-					_focusElement.Focus();
+
+					//finally check if user wants us to focus already on mouse over
+					// otherwise, don't focus (and let WpfMouse manually set focus)
+					if (_focusElement.FocusOnMouseOver)
+					{
+						_focusElement.Focus();
+					}
 				}
 			}
 			return new KeyboardState(GetKeys(_focusElement));

@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Content;
 using System;
 using System.Collections.Generic;
+using MonoGame.Framework.WpfInterop.Input;
 
 namespace MonoGame.Framework.WpfInterop
 {
@@ -38,6 +39,14 @@ namespace MonoGame.Framework.WpfInterop
 		#endregion
 
 		#region Properties
+
+		/// <summary>
+		/// Gets or sets whether this instance takes focus instantly on mouse over.
+		/// If set to false, the user must click into the game panel to gain focus.
+		/// This applies to both <see cref="WpfMouse"/> and <see cref="WpfKeyboard"/> behaviour.
+		/// Defaults to true.
+		/// </summary>
+		public bool FocusOnMouseOver { get; set; } = true;
 
 		/// <summary>
 		/// Mirrors the

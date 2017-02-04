@@ -15,7 +15,7 @@ namespace MonoGame.Framework.WpfInterop.Input
 	{
 		#region Fields
 
-		private readonly UIElement _focusElement;
+		private readonly WpfGame _focusElement;
 
 		private MouseState _mouseState;
 
@@ -24,10 +24,10 @@ namespace MonoGame.Framework.WpfInterop.Input
 		#region Constructors
 
 		/// <summary>
-		/// Creates a new instance of the keyboard helper.
+		/// Creates a new instance of the mouse helper.
 		/// </summary>
 		/// <param name="focusElement">The element that will be used as the focus point. Provide your implementation of <see cref="WpfGame"/> here.</param>
-		public WpfMouse(UIElement focusElement)
+		public WpfMouse(WpfGame focusElement)
 		{
 			if (focusElement == null)
 				throw new ArgumentNullException(nameof(focusElement));
@@ -57,6 +57,36 @@ namespace MonoGame.Framework.WpfInterop.Input
 				return;
 
 			var pos = e.GetPosition(_focusElement);
+
+			if (_focusElement.IsMouseDirectlyOver && System.Windows.Input.Keyboard.FocusedElement != _focusElement)
+			{
+				if (WindowHelper.IsControlOnActiveWindow(_focusElement))
+				{
+					// however, only focus if we are the active window, otherwise the window will become active and pop into foreground just by hovering the mouse over the game panel
+
+					//finally check if user wants us to focus already on mouse over
+					if (_focusElement.FocusOnMouseOver)
+					{
+						_focusElement.Focus();
+					}
+					else
+					{
+						// otherwise focus only when the user clicks into the game
+						// on windows this behaviour doesn't require an explicit left click
+						// instead, left, middle, right and even xbuttons work (the only thing that doesn't trigger focus is scrolling)
+						// so mimic that exactly
+						if (e.LeftButton == MouseButtonState.Pressed ||
+						    e.RightButton == MouseButtonState.Pressed ||
+						    e.MiddleButton == MouseButtonState.Pressed ||
+						    e.XButton1 == MouseButtonState.Pressed ||
+						    e.XButton2 == MouseButtonState.Pressed)
+						{
+							_focusElement.Focus();
+						}
+					}
+				}
+			}
+
 			if (!_focusElement.IsMouseDirectlyOver || _focusElement.IsMouseCaptured)
 			{
 				// IsMouseDirectlyOver always returns true if the mouse is captured, so we need to do our own hit testing if the Mouse is captured to find out whether it is actually over the control or not
