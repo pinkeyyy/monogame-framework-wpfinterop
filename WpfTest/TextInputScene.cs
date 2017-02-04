@@ -27,8 +27,24 @@ namespace WpfTest
 		protected override void Draw(GameTime time)
 		{
 			GraphicsDevice.Clear(_mouseState.LeftButton == ButtonState.Pressed ? Color.Black : Color.CornflowerBlue);
-			
+
+			// since we share the GraphicsDevice with all hosts, we need to save and reset the states
+			// this has to be done because spriteBatch internally sets states and doesn't reset themselves, fucking over any 3D rendering (which happens in the DemoScene)
+
+			var blend = GraphicsDevice.BlendState;
+			var depth = GraphicsDevice.DepthStencilState;
+			var raster = GraphicsDevice.RasterizerState;
+			var sampler = GraphicsDevice.SamplerStates[0];
+
+			// this base.Draw call will draw "all" components (we only added one)
+			// since said component will use a spritebatch to render we need to let it draw before we reset the GraphicsDevice
+			// otherwise it will just alter the state again and fuck over all the other hosts
 			base.Draw(time);
+
+			GraphicsDevice.BlendState = blend;
+			GraphicsDevice.DepthStencilState = depth;
+			GraphicsDevice.RasterizerState = raster;
+			GraphicsDevice.SamplerStates[0] = sampler;
 
 		}
 
