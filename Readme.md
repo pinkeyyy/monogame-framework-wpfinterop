@@ -7,7 +7,7 @@ Note that you **need** MonoGame.Framework.WindowsDX (as this interop uses SharpD
 You can host as many MonoGame controls in Wpf as you want by using the WpfGame control. Note that they are however limited to 60 FPS (this is a WPF limit).
 
 ___
-## Available on NuGet  [![NuGet Status](http://img.shields.io/nuget/v/MonoGame.Framework.WpfInterop.svg?style=flat)](https://www.nuget.org/packages/MonoGame.Framework.WpfInterop/)
+## Available on NuGet  [![NuGet Status](https://img.shields.io/nuget/v/MonoGame.Framework.WpfInterop.svg?style=flat)](https://www.nuget.org/packages/MonoGame.Framework.WpfInterop/)
 
 https://nuget.org/packages/MonoGame.Framework.WpfInterop/
 
