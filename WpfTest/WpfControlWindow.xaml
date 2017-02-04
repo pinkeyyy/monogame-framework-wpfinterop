@@ -14,11 +14,11 @@
 		<StackPanel x:Name="Sidebar">
 			<TextBlock Text="Enter text here, outside the game panel:" TextWrapping="Wrap" />
 			<TextBox Width="100" Height="23" />
-			<TextBlock Text="The text below will be replaced when you type while the game panel has focus. Press enter to clear:" TextWrapping="Wrap" />
+			<TextBlock Text="The text below will be replaced when you type while the game panel has focus (only letters and space). Press delete to clear:" TextWrapping="Wrap" />
 			<TextBlock x:Name="TextFromGame" Text="" TextWrapping="Wrap" />
 		</StackPanel>
 		<Grid Grid.Column="1">
-			<wpfTest:TextInputScene />
+			<wpfTest:TextInputScene x:Name="Game" />
 			<TextBox x:Name="TextboxOverWpfGame" Margin="10" Width="100" Height="23" HorizontalAlignment="Left" VerticalAlignment="Top" />
 		</Grid>
 	</Grid>

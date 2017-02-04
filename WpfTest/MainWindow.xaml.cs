@@ -27,6 +27,10 @@ namespace WpfTest
 		private void Launch_WpfControls(object sender, RoutedEventArgs e)
 		{
 			var window = new WpfControlWindow();
+			window.Closed += (o, args) =>
+			{
+				window.Dispose();
+			};
 			window.Show();
 		}
 
