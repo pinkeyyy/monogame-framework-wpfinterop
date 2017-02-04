@@ -143,7 +143,7 @@ So the code needs to look like this instead:
 
 # Changelog
 
-**v1.4.0** (planned)
+**v1.4.0**
 
 * WpfGame now has "FocusOnMouseOver" which allows changing the behaviour (defaults to true)
 * WpfMouse now has "CaptureMouseWithin" which allows changing the capture behaviour (defaults to true)
