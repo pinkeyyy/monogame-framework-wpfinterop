@@ -11,7 +11,7 @@ ___
 
 https://nuget.org/packages/MonoGame.Framework.WpfInterop/
 
-    PM> Install-Package MonoGame.Framework.WpfInterop
+	PM> Install-Package MonoGame.Framework.WpfInterop
    
 By adding the NuGet package to a project it is possible to host MonoGame inside WPF windows.
 
@@ -37,6 +37,8 @@ public class MyGame : WpfGame
 		
 		// must be called after the WpfGraphicsDeviceService instance was created
 		base.Initialize();
+
+		// content loading now possible
 	}
 
 	protected override void Update(GameTime time)
@@ -78,7 +80,7 @@ By default the game takes focus on mouse (h)over. This can be disabled via the F
 
 By default the game captures the mouse. This allows capture of mouse events outside the game (e.g. user holds and drags the mouse outside the window, then releases it -> game will still receive mouse up event). The downside is that no overlayed controls (e.g. textboxes) will ever receive focus.
 
-Alternatively this can be toggled of via CaptureMouseWithin property of WpfMouse and then allows focus on overlayed controls. Downside is that mouse events outside the game window are no longer registered (e.g. user holds and drags the mouse outside the window, then releases it -> game will still think the mouse is down until the window receives focus again)
+Alternatively this can be toggled off via CaptureMouseWithin property of WpfMouse and then allows focus on overlayed controls. Downside is that mouse events outside the game window are no longer registered (e.g. user holds and drags the mouse outside the window, then releases it -> game will still think the mouse is down until the window receives focus again)
 
 # Gotchas
 
@@ -136,12 +138,41 @@ So the code needs to look like this instead:
 	_spriteBatch.End();
 ```
 
+## TabControls
+
+It is perfectly possible to use the WpfGame controls inside TabControls.
+
+By default, WPF would fully unload any tab that was deactivated (e.g. when switching to another tab) and fully reload the tab when switching back.
+
+The WpfGame instance does not adhere to this.
+
+### WpfGame.Activated/Deactivated
+
+When a WpfGame is hosted inside a tab and the tab is changed, the WpfGame instance is **not unloaded**. Instead, Deactivated is fired. Likewise when the tab is activated again, Activated is fired.
+
+If the parent window loses focus, Deactivated is fired (but only for the active tab) and when the window receives focus, Activated is called again (only for the active tab).
+
+### Initialize/Dispose
+
+Initialize is only called once (per instance, when the window is created) and Dispose is called for all tabs once the window closes.
+
+This means, that initialize is called even for those instances that are in "disabled" tabs. However IsActive can be used to determine whether the current game is inside the active tab (see below).
+
+### WpfGame.IsActive
+
+Update/Draw are still called for all inactive tabs and any inactive tab has the IsActive property on WpfGame set to false. Only the active tab has IsActive set to true (and only when the window is the currently active window).
 
 # Roadmap
 
 * Properly implement GraphicsDeviceService (call all events when appropriate)
 
 # Changelog
+
+**v1.5.0**
+
+* Fixed bug that causes crashes when WpfGame was hosted inside TabControls and tabs where switched
+* Added Activated/Deativated events on WpfGame that fire on window focus/focus lost (see section Gotchas\TabControls for details when used inside tabs)
+* Added IsActive property on WpfGame that indicates whether the current windows is the active one or not (see also section Gotchas\TabvControls for details when used inside tabs)
 
 **v1.4.0**
 
