@@ -17,7 +17,9 @@
 		</Grid.ColumnDefinitions>
 		<scenes:CubeDemoScene Grid.Row="0" Grid.Column="0" Width="500" Height="300" />
 		<scenes:CubeDemoScene Grid.Row="0" Grid.Column="1" />
-		<scenes:CubeDemoScene Grid.Row="1" Grid.Column="0" x:Name="CinematicExperience" />
-		<scenes:CubeDemoScene Grid.Row="1" Grid.Column="1"  Margin="10" />
+		<TextBlock Text="Scene below runs with a maximum of 30 fps: " Grid.Row="1" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Center" />
+		<scenes:CubeDemoScene Grid.Row="1" Grid.Column="0" Margin="10,20,10,10" x:Name="CinematicExperience" />
+		<TextBlock Text="Scene below runs with a maximum of 20 fps: " Grid.Row="1" Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Center" />
+		<scenes:CubeDemoScene Grid.Row="1" Grid.Column="1" Margin="10,20,10,10" x:Name="LowFps" />
 	</Grid>
 </Window>
