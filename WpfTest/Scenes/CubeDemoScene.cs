@@ -212,6 +212,8 @@ namespace WpfTest.Scenes
 			base.Update(gameTime);
 		}
 
+		private float _rotation;
+
 		protected override void Draw(GameTime time)
 		{
 			//The projection depends on viewport dimensions (aspect ratio).
@@ -228,8 +230,10 @@ namespace WpfTest.Scenes
 			GraphicsDevice.SetVertexBuffer(_vertexBuffer);
 
 			// Rotate cube around up-axis.
-			var rot = _keyboardState.IsKeyDown(Keys.Space) ? 0 : (float)time.TotalGameTime.TotalMilliseconds / 1000 * MathHelper.TwoPi;
-			_basicEffect.World = Matrix.CreateRotationY(rot) * _worldMatrix;
+			// only update cube when the game is active
+			if (IsActive)
+				_rotation += (float)time.ElapsedGameTime.TotalMilliseconds / 1000 * MathHelper.TwoPi;
+			_basicEffect.World = Matrix.CreateRotationY(_rotation) * _worldMatrix;
 
 			foreach (var pass in _basicEffect.CurrentTechnique.Passes)
 			{
