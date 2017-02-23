@@ -12,7 +12,6 @@ namespace WpfTest.Components
 	public class TextComponent : WpfDrawableGameComponent
 	{
 		private SpriteBatch _spriteBatch;
-		private readonly string _text;
 		private readonly Vector2 _position;
 		private readonly HorizontalAlignment _h;
 		private readonly VerticalAlignment _v;
@@ -33,11 +32,16 @@ namespace WpfTest.Components
 			if (h == HorizontalAlignment.Stretch || v == VerticalAlignment.Stretch)
 				throw new NotSupportedException("Text cannot be stretched in monogame");
 
-			_text = text;
+			Text = text;
 			_position = position;
 			_h = h;
 			_v = v;
 		}
+
+		/// <summary>
+		/// The text property of this instance, can be edited at any time and will reflect in the next draw call.
+		/// </summary>
+		public string Text { get; set; }
 
 		protected override void LoadContent()
 		{
@@ -48,10 +52,10 @@ namespace WpfTest.Components
 		public override void Draw(GameTime gameTime)
 		{
 			_spriteBatch.Begin();
-			var textSize = _font.MeasureString(_text);
+			var textSize = _font.MeasureString(Text);
 			var screenSize = new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
 			var p = RecomputePosition(_position * screenSize, textSize, _h, _v);
-			_spriteBatch.DrawString(_font, _text, p, Color.White);
+			_spriteBatch.DrawString(_font, Text, p, Color.White);
 			_spriteBatch.End();
 		}
 

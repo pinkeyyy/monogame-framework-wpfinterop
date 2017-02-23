@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Content;
 using System;
 using System.Collections.Generic;
-using MonoGame.Framework.WpfInterop.Input;
 
 namespace MonoGame.Framework.WpfInterop
 {
@@ -43,13 +42,13 @@ namespace MonoGame.Framework.WpfInterop
 		/// <summary>
 		/// Gets or sets whether this instance takes focus instantly on mouse over.
 		/// If set to false, the user must click into the game panel to gain focus.
-		/// This applies to both <see cref="WpfMouse"/> and <see cref="WpfKeyboard"/> behaviour.
+		/// This applies to both <see cref="MonoGame.Framework.WpfInterop.Input.WpfMouse"/> and <see cref="MonoGame.Framework.WpfInterop.Input.WpfKeyboard"/> behaviour.
 		/// Defaults to true.
 		/// </summary>
 		public bool FocusOnMouseOver { get; set; } = true;
 
 		/// <summary>
-		/// Mirrors the
+		/// Mirrors the game component collection behaviour of monogame.
 		/// </summary>
 		public GameComponentCollection Components { get; }
 
@@ -78,15 +77,18 @@ namespace MonoGame.Framework.WpfInterop
 		/// <param name="disposing"></param>
 		protected override void Dispose(bool disposing)
 		{
-			Content?.Dispose();
-
-			UnloadContent();
-
 			foreach (var c in Components)
 			{
 				var disp = c as IDisposable;
 				disp?.Dispose();
 			}
+			Components.ComponentAdded -= ComponentAdded;
+			Components.ComponentRemoved -= ComponentRemoved;
+			Components.Clear();
+
+			UnloadContent();
+
+			Content?.Dispose();
 		}
 
 		/// <summary>

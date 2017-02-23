@@ -16,6 +16,7 @@
 			<Button Width="180" Height="30" Content="Launch a game in new window" Margin="5" Click="OpenNewWindow" />
 			<Button Width="180" Height="30" Content="Test input controls" Margin="5" Click="OpenTextInputWindow" />
 			<Button Width="180" Height="30" Content="Show multiple scenes" Margin="5" Click="OpenMultipleGameWindow" />
+			<Button Width="180" Height="30" Content="Show scenes in tabs" Margin="5" Click="OpenTabbedGameWindow" />
 		</StackPanel>
 		<scenes:CubeDemoScene Grid.Column="1" />
 	</Grid>

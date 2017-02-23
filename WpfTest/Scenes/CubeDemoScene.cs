@@ -220,7 +220,10 @@ namespace WpfTest.Scenes
 			RefreshProjection();
 
 			GraphicsDevice.Clear(_mouseState.LeftButton == ButtonState.Pressed ? Color.Black : Color.CornflowerBlue);
-
+			GraphicsDevice.DepthStencilState = new DepthStencilState
+			{
+				DepthBufferEnable = true
+			};
 			GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 			GraphicsDevice.SetVertexBuffer(_vertexBuffer);
 
@@ -234,20 +237,7 @@ namespace WpfTest.Scenes
 				GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, 12);
 			}
 
-			// since we share the GraphicsDevice with all hosts, we need to save and reset the states
-			// this has to be done because spriteBatch internally sets states and doesn't reset themselves, fucking over any 3D rendering (which happens in the DemoScene)
-
-			var blend = GraphicsDevice.BlendState;
-			var depth = GraphicsDevice.DepthStencilState;
-			var raster = GraphicsDevice.RasterizerState;
-			var sampler = GraphicsDevice.SamplerStates[0];
-
 			base.Draw(time);
-
-			GraphicsDevice.BlendState = blend;
-			GraphicsDevice.DepthStencilState = depth;
-			GraphicsDevice.RasterizerState = raster;
-			GraphicsDevice.SamplerStates[0] = sampler;
 		}
 	}
 }

@@ -64,6 +64,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\TabWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\TextInputWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -81,12 +85,17 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Components\TextComponent.cs" />
+    <Compile Include="HyperlinkExtensions.cs" />
+    <Compile Include="Scenes\TabScene.cs" />
     <Compile Include="Scenes\CubeDemoScene.cs" />
     <Compile Include="Components\FpsComponent.cs" />
     <Compile Include="Scenes\TextInputScene.cs" />
     <Compile Include="Components\TimingComponent.cs" />
     <Compile Include="Views\MultiSceneWindow.xaml.cs">
       <DependentUpon>MultiSceneWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TabWindow.xaml.cs">
+      <DependentUpon>TabWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TextInputWindow.xaml.cs">
       <DependentUpon>TextInputWindow.xaml</DependentUpon>

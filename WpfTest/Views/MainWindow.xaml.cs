@@ -29,5 +29,11 @@ namespace WpfTest.Views
 			var w = new MultiSceneWindow();
 			w.Show();
 		}
+
+		private void OpenTabbedGameWindow(object sender, RoutedEventArgs e)
+		{
+			var w = new TabWindow();
+			w.Show();
+		}
 	}
 }
