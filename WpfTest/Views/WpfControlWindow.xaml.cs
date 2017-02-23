@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Windows.Threading;
 
-namespace WpfTest
+namespace WpfTest.Views
 {
 	/// <summary>
 	/// Interaction logic for WpfControlWindow.xaml

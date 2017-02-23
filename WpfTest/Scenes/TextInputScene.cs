@@ -1,14 +1,20 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Framework.WpfInterop;
 using MonoGame.Framework.WpfInterop.Input;
+using System.Linq;
+using System.Text;
 
-namespace WpfTest
+namespace WpfTest.Scenes
 {
+	/// <summary>
+	/// Demo scene for text input.
+	/// Allows toggling the mouse focus and capture behaviour.
+	/// Demonstrates when text input is received inside the game.
+	/// Should be used in combination with wpf textboxes besides/ontop of the game so users can see
+	/// which behaviour allows textinput.
+	/// </summary>
 	public class TextInputScene : WpfGame
 	{
 		private IGraphicsDeviceService _graphicsDeviceManager;

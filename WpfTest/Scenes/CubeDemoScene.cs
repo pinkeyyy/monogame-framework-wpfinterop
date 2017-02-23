@@ -4,13 +4,14 @@ using Microsoft.Xna.Framework.Input;
 using MonoGame.Framework.WpfInterop;
 using MonoGame.Framework.WpfInterop.Input;
 
-namespace WpfTest
+namespace WpfTest.Scenes
 {
 	/// <summary>
-	/// Source: http://msdn.microsoft.com/en-us/library/bb203926(v=xnagamestudio.40).aspx
+	/// Displays a spinning cube and an fps counter. Background color defaults to <see cref="Color.CornflowerBlue"/> and changes to <see cref="Color.Black"/> while left mouse button down is registered.
 	/// Note that this is just an example implementation of <see cref="WpfGame"/>.
+	/// Based on: http://msdn.microsoft.com/en-us/library/bb203926(v=xnagamestudio.40).aspx
 	/// </summary>
-	public class DemoScene : WpfGame
+	public class CubeDemoScene : WpfGame
 	{
 		#region Fields
 
@@ -34,7 +35,8 @@ namespace WpfTest
 		{
 			if (_disposed)
 				return;
-
+			Services.RemoveService(typeof(IGraphicsDeviceService));
+			Components.Clear();
 			_disposed = true;
 
 			_vertexBuffer.Dispose();
@@ -82,6 +84,10 @@ namespace WpfTest
 
 		protected override void Initialize()
 		{
+			_disposed = false;
+			// this is stupid behaviour copied from xna
+			// the ctor call registers IGraphicsDeviceService in the current game.Services
+			// better:? Services.Add<IGraphicsDeviceService>(new WpfGraphicsDeviceService(GraphicsDevice))
 			var gds = new WpfGraphicsDeviceService(this);
 			Components.Add(new FpsComponent(this));
 			Components.Add(new TimingComponent(this));

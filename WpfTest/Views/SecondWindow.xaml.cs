@@ -1,4 +1,4 @@
-﻿namespace WpfTest
+﻿namespace WpfTest.Views
 {
 	/// <summary>
 	/// Interaction logic for SecondWindow.xaml

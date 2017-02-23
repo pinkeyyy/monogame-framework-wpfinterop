@@ -4,8 +4,11 @@ using Microsoft.Xna.Framework.Input;
 using MonoGame.Framework.WpfInterop;
 using MonoGame.Framework.WpfInterop.Input;
 
-namespace WpfTest
+namespace WpfTest.Scenes
 {
+	/// <summary>
+	/// Simple dummy scene with a spinning texture.
+	/// </summary>
 	public class ContentScene : WpfGame
 	{
 		#region Fields
