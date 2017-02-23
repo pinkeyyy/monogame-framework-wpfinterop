@@ -10,6 +10,8 @@ namespace MonoGame.Framework.WpfInterop
 	/// </summary>
 	public abstract class WpfGame : D3D11Host
 	{
+		private readonly string _contentDir;
+
 		#region Fields
 
 		private ContentManager _content;
@@ -28,7 +30,8 @@ namespace MonoGame.Framework.WpfInterop
 			if (string.IsNullOrEmpty(contentDir))
 				throw new ArgumentNullException(nameof(contentDir));
 
-			Content = new ContentManager(Services, contentDir);
+			_contentDir = contentDir;
+
 			Focusable = true;
 			Components = new GameComponentCollection();
 			_sortedDrawables = new List<IDrawable>();
@@ -110,6 +113,7 @@ namespace MonoGame.Framework.WpfInterop
 		protected override void Initialize()
 		{
 			base.Initialize();
+			Content = new ContentManager(Services, _contentDir);
 
 			// hook events now (graphics, etc. is now loaded)
 			// any components added prior we insert manually

@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -11,6 +10,7 @@ namespace MonoGame.Framework.WpfInterop
 {
 	/// <summary>
 	/// Host a Direct3D 11 scene.
+	/// Low level abstraction, should not be used (use <see cref="WpfGame"/> instead).
 	/// </summary>
 	public abstract class D3D11Host : Image, IDisposable
 	{
@@ -45,7 +45,7 @@ namespace MonoGame.Framework.WpfInterop
 		{
 			// defaulting to fill as that's what's needed in most cases
 			Stretch = Stretch.Fill;
-			
+
 			Loaded += OnLoaded;
 			Unloaded += OnUnloaded;
 		}
@@ -115,6 +115,7 @@ namespace MonoGame.Framework.WpfInterop
 
 		protected virtual void Initialize()
 		{
+			_disposed = false;
 		}
 
 		/// <summary>
@@ -281,13 +282,16 @@ namespace MonoGame.Framework.WpfInterop
 
 			_resetBackBuffer = false;
 		}
-		
+
 		private void OnUnloaded(object sender, RoutedEventArgs eventArgs)
 		{
-			if (IsInDesignMode)
+			if (IsInDesignMode || !_loaded)
 				return;
 
+			_loaded = false;
 			StopRendering();
+			// TODO: only call dispose if the entire window has been unloaded
+			// if the game is hosted in a tab, the user probably doesn't want it to be disposed each time the tab is switched
 			Dispose();
 			UnitializeImageSource();
 			UninitializeGraphicsDevice();

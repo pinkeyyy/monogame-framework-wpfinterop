@@ -1,12 +1,10 @@
-﻿using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.ComponentModel.Design;
 
 namespace MonoGame.Framework.WpfInterop
 {
 	/// <summary>
-	/// The <see cref="ContentManager"/> needs a <see cref="IGraphicsDeviceService"/> to be in the <see cref="IServiceContainer"/>. This class fulfills this purpose.
+	/// The <see cref="Microsoft.Xna.Framework.Content.ContentManager"/> needs a <see cref="IGraphicsDeviceService"/> to be in the <see cref="System.ComponentModel.Design.IServiceContainer"/>. This class fulfills this purpose.
 	/// </summary>
 	public class WpfGraphicsDeviceService : IGraphicsDeviceService
 	{
@@ -16,7 +14,7 @@ namespace MonoGame.Framework.WpfInterop
 		/// Create a new instance of the dummy. The constructor will autom. add the instance itself to the <see cref="D3D11Host.Services"/> container of <see cref="host"/>.
 		/// </summary>
 		/// <param name="host"></param>
-		public WpfGraphicsDeviceService(D3D11Host host)
+		public WpfGraphicsDeviceService(WpfGame host)
 		{
 			if (host == null)
 				throw new ArgumentNullException(nameof(host));
