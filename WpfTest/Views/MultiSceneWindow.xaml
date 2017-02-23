@@ -5,7 +5,7 @@
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:scenes="clr-namespace:WpfTest.Scenes"
 		mc:Ignorable="d"
-		Title="MultiSceneWindow" Height="768" Width="1024" MinWidth="800" MinHeight="520">
+		Title="MultiSceneWindow" MinWidth="1200" MinHeight="800" Height="800" Width="1200">
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="*" />
@@ -15,18 +15,9 @@
 			<ColumnDefinition Width="*" />
 			<ColumnDefinition Width="*" />
 		</Grid.ColumnDefinitions>
-		<scenes:CubeDemoScene Grid.Row="0" Grid.Column="1" Width="400" Height="240" />
-		<scenes:ContentScene Grid.Row="1" Grid.Column="0" Width="400" Height="240" />
-		<scenes:CubeDemoScene Grid.Row="1" Grid.Column="1" x:Name="CinematicExperience" />
-		<TextBlock Grid.Row="0" Grid.Column="0" Text="Left click in any control to change background color. Use Left right to rotate the 'Hello texture' sprite. Use space to pause the 3D cubes. Note that input is only registered in the control where the mouse is over."
-					HorizontalAlignment="Center" TextWrapping="Wrap" Margin="5" />
-		<StackPanel Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">
-			<Button Width="140" Height="30" Content="Launch in new window" Click="Launch_OnClick" Margin="5" />
-			<Button Width="140" Height="30" Content="Test wpf controls" Click="Launch_WpfControls" Margin="5" />
-		</StackPanel>
-		<TextBlock Grid.Row="0" Grid.Column="1" Text="DemoScene:" HorizontalAlignment="Center" IsHitTestVisible="False" />
-		<TextBlock Grid.Row="1" Grid.Column="0" Text="ContentScene:" HorizontalAlignment="Center" Foreground="Green" IsHitTestVisible="False" />
-		<TextBox  Grid.Row="1" Grid.Column="0" Margin="0,20,0,0" Width="100" Height="23" HorizontalAlignment="Center" VerticalAlignment="Top" />
-		<TextBlock Grid.Row="1" Grid.Column="1" Text="DemoScene (scaled):" HorizontalAlignment="Center" IsHitTestVisible="False" Foreground="White" />
+		<scenes:CubeDemoScene Grid.Row="0" Grid.Column="0" Width="500" Height="300" />
+		<scenes:CubeDemoScene Grid.Row="0" Grid.Column="1" />
+		<scenes:CubeDemoScene Grid.Row="1" Grid.Column="0" x:Name="CinematicExperience" />
+		<scenes:CubeDemoScene Grid.Row="1" Grid.Column="1"  Margin="10" />
 	</Grid>
 </Window>

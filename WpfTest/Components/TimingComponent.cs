@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Documents;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Framework.WpfInterop;
 
-namespace WpfTest
+namespace WpfTest.Components
 {
 	public class TimingComponent : WpfDrawableGameComponent
 	{

@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Framework.WpfInterop;
 
-namespace WpfTest
+namespace WpfTest.Components
 {
 	public class FpsComponent : WpfDrawableGameComponent
 	{

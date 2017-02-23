@@ -5,20 +5,21 @@ using System.Windows.Threading;
 namespace WpfTest.Views
 {
 	/// <summary>
-	/// Interaction logic for WpfControlWindow.xaml
+	/// Interaction logic for TextInputWindow.xaml
 	/// </summary>
-	public partial class WpfControlWindow : IDisposable
+	public partial class TextInputWindow
 	{
-		private readonly Timer _timer;
-
-		#region Constructors
-
-		public WpfControlWindow()
+		public TextInputWindow()
 		{
 			InitializeComponent();
 
 			// manual timer that runs every 50ms to update UI based on game state
-			_timer = new Timer(TimerTick, null, 0, 50);
+			var timer = new Timer(TimerTick, null, 0, 50);
+			Closed += (sender, args) =>
+			{
+				timer?.Dispose();
+				timer = null;
+			};
 		}
 
 		private void TimerTick(object state)
@@ -28,12 +29,5 @@ namespace WpfTest.Views
 				TextFromGame.Text = Game.EnteredMessage;
 			}));
 		}
-
-		public void Dispose()
-		{
-			_timer.Dispose();
-		}
-
-		#endregion
 	}
 }

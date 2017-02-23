@@ -84,8 +84,6 @@ namespace WpfTest.Scenes
 			_font = Content.Load<SpriteFont>("DefaultFont");
 
 			_spriteBatch = new SpriteBatch(GraphicsDevice);
-
-			Components.Add(new DrawMeComponent(this, new Point(400, 500)));
 		}
 
 		protected override void Update(GameTime time)

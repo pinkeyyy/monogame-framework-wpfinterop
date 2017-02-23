@@ -1,13 +1,13 @@
 ﻿namespace WpfTest.Views
 {
 	/// <summary>
-	/// Interaction logic for SecondWindow.xaml
+	/// Interaction logic for SimpleWindow.xaml
 	/// </summary>
-	public partial class SecondWindow
+	public partial class SimpleWindow
 	{
 		#region Constructors
 
-		public SecondWindow()
+		public SimpleWindow()
 		{
 			InitializeComponent();
 		}

@@ -13,8 +13,9 @@
 		</Grid.ColumnDefinitions>
 		<StackPanel>
 			<TextBlock Text="Press any button to launch a new window with more demos:" TextWrapping="Wrap" Margin="5" />
-			<Button Width="140" Height="30" Content="Launch in new window" Margin="5" />
-			<Button Width="140" Height="30" Content="Test wpf controls" Margin="5" />
+			<Button Width="180" Height="30" Content="Launch a game in new window" Margin="5" Click="OpenNewWindow" />
+			<Button Width="180" Height="30" Content="Test input controls" Margin="5" Click="OpenTextInputWindow" />
+			<Button Width="180" Height="30" Content="Show multiple scenes" Margin="5" Click="OpenMultipleGameWindow" />
 		</StackPanel>
 		<scenes:CubeDemoScene Grid.Column="1" />
 	</Grid>

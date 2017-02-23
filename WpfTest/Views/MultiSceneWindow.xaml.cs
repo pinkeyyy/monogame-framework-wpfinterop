@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Windows;
 
 namespace WpfTest.Views
 {
@@ -8,34 +7,12 @@ namespace WpfTest.Views
 	/// </summary>
 	public partial class MultiSceneWindow
 	{
-		#region Constructors
-
 		public MultiSceneWindow()
 		{
 			InitializeComponent();
+			// showcase FPS limit
+			// WPF limits everything to 60 fps max, but we still can run with less WPF if desired
 			CinematicExperience.TargetElapsedTime = TimeSpan.FromSeconds(1 / 30.0);
 		}
-
-		#endregion
-
-		#region Methods
-
-		private void Launch_OnClick(object sender, RoutedEventArgs e)
-		{
-			var window = new SecondWindow();
-			window.Show();
-		}
-
-		private void Launch_WpfControls(object sender, RoutedEventArgs e)
-		{
-			var window = new WpfControlWindow();
-			window.Closed += (o, args) =>
-			{
-				window.Dispose();
-			};
-			window.Show();
-		}
-
-		#endregion
 	}
 }
