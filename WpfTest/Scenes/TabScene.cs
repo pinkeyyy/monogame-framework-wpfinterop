@@ -15,23 +15,17 @@ namespace WpfTest.Scenes
 	{
 		private int _numberOfInitializeCalls;
 		private int _numberOfDisposeCalls;
-		private int _numberOfConstructorCalls;
-		private DateTime _lastInitCall, _lastDisposeCall;
+		private int _numberOfActivateCalls;
+		private int _numberOfDeactivateCalls;
+		private DateTime _lastActivateCall, _lastDeactivateCall;
 		private TextComponent _text;
 		internal static int Counter;
 		private int _id;
 
-		public TabScene()
-		{
-			// constructor is only called once, but humor me
-			_numberOfConstructorCalls++;
-		}
-
 		protected override void Initialize()
 		{
-			// initialize is called each time the tab containing this game is loaded
+			// init is only called once per game
 			_numberOfInitializeCalls++;
-			_lastInitCall = DateTime.Now;
 
 			new WpfGraphicsDeviceService(this);
 
@@ -47,18 +41,21 @@ namespace WpfTest.Scenes
 		private void OnDeactivated(object sender, EventArgs e)
 		{
 			Debug.WriteLine($"Tabbed game {_id} deactivate");
+			_lastDeactivateCall = DateTime.Now;
+			_numberOfDeactivateCalls++;
 		}
 
 		private void OnActivated(object sender, EventArgs eventArgs)
 		{
 			Debug.WriteLine($"Tabbed game {_id} activate");
+			_lastActivateCall = DateTime.Now;
+			_numberOfActivateCalls++;
 		}
 
 		protected override void Dispose(bool disposing)
 		{
-			// Dispose is called each time the tab containing this game is unloaded
+			// Dispose is called once per game (only when the window closes)
 			_numberOfDisposeCalls++;
-			_lastDisposeCall = DateTime.Now;
 
 			// dispose auto. clears components but not services
 			base.Dispose(disposing);
@@ -71,11 +68,12 @@ namespace WpfTest.Scenes
 
 		protected override void Update(GameTime gameTime)
 		{
-			var updatedText = $"Number of constructor calls: {_numberOfConstructorCalls}" + Environment.NewLine +
-							  $"Number of initialize calls: {_numberOfInitializeCalls}" + Environment.NewLine +
-							  $"Last initialize call at: {_lastInitCall}" + Environment.NewLine +
+			var updatedText = $"Number of initialize calls: {_numberOfInitializeCalls}" + Environment.NewLine +
 							  $"Number of dispose calls: {_numberOfDisposeCalls}" + Environment.NewLine +
-							  $"Last dispose call at: {_lastDisposeCall}" + Environment.NewLine +
+							  $"Number of activate calls: {_numberOfActivateCalls}" + Environment.NewLine +
+							  $"Last activate call at: {_lastActivateCall}" + Environment.NewLine +
+							  $"Number of deactivate calls: {_numberOfDeactivateCalls}" + Environment.NewLine +
+							  $"Last deactivate call at: {_lastDeactivateCall}" + Environment.NewLine +
 							  $"IsActive: {IsActive}";
 			_text.Text = updatedText;
 			base.Update(gameTime);
