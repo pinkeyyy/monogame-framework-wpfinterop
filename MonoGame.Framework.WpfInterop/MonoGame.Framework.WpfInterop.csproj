@@ -56,6 +56,7 @@
     <Compile Include="Input\WindowHelper.cs" />
     <Compile Include="Input\WpfKeyboard.cs" />
     <Compile Include="Input\WpfMouse.cs" />
+    <Compile Include="Internals\LogicalTreeHelperEx.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WpfDrawableGameComponent.cs" />
     <Compile Include="WpfGame.cs" />

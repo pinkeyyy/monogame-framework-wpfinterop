@@ -1,7 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Framework.WpfInterop.Internals;
 using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -14,8 +16,6 @@ namespace MonoGame.Framework.WpfInterop
 	/// </summary>
 	public abstract class D3D11Host : Image, IDisposable
 	{
-		#region Fields
-
 		private static readonly object _graphicsDeviceLock = new object();
 
 		private bool _isRendering;
@@ -33,10 +33,7 @@ namespace MonoGame.Framework.WpfInterop
 		// Image source:
 		private RenderTarget2D _renderTarget;
 		private bool _resetBackBuffer;
-
-		#endregion
-
-		#region Constructors
+		private bool _isActive;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="D3D11Host"/> class.
@@ -47,12 +44,7 @@ namespace MonoGame.Framework.WpfInterop
 			Stretch = Stretch.Fill;
 
 			Loaded += OnLoaded;
-			Unloaded += OnUnloaded;
 		}
-
-		#endregion
-
-		#region Properties
 
 		/// <summary>
 		/// Determines whether the game runs in fixed timestep or not.
@@ -81,9 +73,36 @@ namespace MonoGame.Framework.WpfInterop
 			get
 			{
 				if (!_isInDesignMode.HasValue)
-					_isInDesignMode = (bool)DependencyPropertyDescriptor.FromProperty(DesignerProperties.IsInDesignModeProperty, typeof(FrameworkElement)).Metadata.DefaultValue;
+					_isInDesignMode =
+						(bool)
+						DependencyPropertyDescriptor.FromProperty(DesignerProperties.IsInDesignModeProperty, typeof(FrameworkElement))
+							.Metadata.DefaultValue;
 
 				return _isInDesignMode.Value;
+			}
+		}
+
+		/// <summary>
+		/// Gets whether the current control is active.
+		/// This property will be true, when the control is active (parent window has focus).
+		/// Note that if the game is inside a tab, then this property will only be true if the window has focus and the tab is active.
+		/// If either the window loses focus or the tab is switched, this property will be false.
+		/// </summary>
+		public bool IsActive
+		{
+			get { return _isActive; }
+			private set
+			{
+				if (_isActive == value)
+					return;
+				_isActive = value;
+				if (!_disposed)
+				{
+					if (IsActive)
+						Activated?.Invoke(this, EventArgs.Empty);
+					else
+						Deactivated?.Invoke(this, EventArgs.Empty);
+				}
 			}
 		}
 
@@ -98,16 +117,25 @@ namespace MonoGame.Framework.WpfInterop
 		/// </summary>
 		public GameServiceContainer Services { get; } = new GameServiceContainer();
 
-		#endregion
+		/// <summary>
+		/// Event is invoked when the game is activated (window receives focus).
+		/// Note for game instances inside a tab control this will fire only when the tab is activated (or the tab was active and the window is focused).
+		/// </summary>
+		public event EventHandler<EventArgs> Activated;
 
-		#region Methods
+		/// <summary>
+		/// Event is invoked when the game is deactivated (window loses focus).
+		/// Note for game instances inside a tab control this will fire only when the tab is deactivated (or the tab was active and the window loses focus).
+		/// </summary>
+		public event EventHandler<EventArgs> Deactivated;
 
 		public void Dispose()
 		{
 			if (_disposed)
 				return;
 			_disposed = true;
-
+			Activated = null;
+			Deactivated = null;
 			Dispose(true);
 		}
 
@@ -175,7 +203,8 @@ namespace MonoGame.Framework.WpfInterop
 
 			int width = Math.Max((int)ActualWidth, 1);
 			int height = Math.Max((int)ActualHeight, 1);
-			_renderTarget = new RenderTarget2D(_graphicsDevice, width, height, false, SurfaceFormat.Bgr32, DepthFormat.Depth24Stencil8, 0, RenderTargetUsage.DiscardContents, true);
+			_renderTarget = new RenderTarget2D(_graphicsDevice, width, height, false, SurfaceFormat.Bgr32,
+				DepthFormat.Depth24Stencil8, 0, RenderTargetUsage.DiscardContents, true);
 			_d3D11Image.SetBackBuffer(_renderTarget);
 		}
 
@@ -206,6 +235,32 @@ namespace MonoGame.Framework.WpfInterop
 				return;
 
 			_loaded = true;
+
+			// get the current window and register Activate/Deactivate
+			var window = LogicalTreeHelperEx.FindParent<Window>(this);
+			if (window == null)
+				throw new NotSupportedException("The game control does not have a parent window, this is currently not supported");
+
+			window.Activated += OnWindowActivated;
+			window.Deactivated += OnWindowDeactivated;
+			window.Closed += OnWindowClosed;
+			var tabControl = LogicalTreeHelperEx.FindParent<TabControl>(this);
+			// if there is any parent that is a tabitem, we must be inside a TabControl
+			// 
+			var windowIsInTab = tabControl != null;
+			if (windowIsInTab)
+			{
+				// also hook up to tab events
+				tabControl.SelectionChanged += TabChanged;
+			}
+			// check whether current window is indeed the active one (usually it will be)
+			// but there are some edge cases (programmatically show a tab with this game control after a timer) -> window doesn't have to be active
+			var active = Application.Current.Windows.OfType<Window>().SingleOrDefault(x => x.IsActive);
+			if (active == window && IsVisible)
+			{
+				IsActive = true;
+			}
+
 			InitializeGraphicsDevice();
 			InitializeImageSource();
 
@@ -235,6 +290,58 @@ namespace MonoGame.Framework.WpfInterop
 					deCancerifyWpf.RunWorkerAsync(ex);
 				}
 			}
+		}
+
+		private void TabChanged(object sender, SelectionChangedEventArgs e)
+		{
+			if (e.Source is TabControl)
+			{
+				// are we being added or removed?
+				var gameParent = LogicalTreeHelperEx.FindParent<TabItem>(this);
+				if (e.AddedItems.Contains(gameParent))
+				{
+					// added
+					IsActive = true;
+				}
+				else if (e.RemovedItems.Contains(gameParent))
+				{
+					// removed
+					IsActive = false;
+				}
+			}
+		}
+
+		private void OnWindowClosed(object sender, EventArgs e)
+		{
+			StopRendering();
+			Dispose();
+			UnitializeImageSource();
+			UninitializeGraphicsDevice();
+		}
+
+		private void OnWindowActivated(object sender, EventArgs e)
+		{
+			var tabControl = LogicalTreeHelperEx.FindParent<TabControl>(this);
+			// if there is any parent that is a tabitem, we must be inside a TabControl
+			// 
+			var windowIsInTab = tabControl != null;
+			if (windowIsInTab)
+			{
+				// inside a tab, check whether the tab is active
+				var tabItem = LogicalTreeHelperEx.FindParent<TabItem>(this);
+				// only set to true for the currently active tab
+				IsActive = tabControl.SelectedItem == tabItem;
+			}
+			else
+			{
+				// regular control on the window
+				IsActive = true;
+			}
+		}
+
+		private void OnWindowDeactivated(object sender, EventArgs e)
+		{
+			IsActive = false;
 		}
 
 		private void OnRendering(object sender, EventArgs eventArgs)
@@ -283,20 +390,6 @@ namespace MonoGame.Framework.WpfInterop
 			_resetBackBuffer = false;
 		}
 
-		private void OnUnloaded(object sender, RoutedEventArgs eventArgs)
-		{
-			if (IsInDesignMode || !_loaded)
-				return;
-
-			_loaded = false;
-			StopRendering();
-			// TODO: only call dispose if the entire window has been unloaded
-			// if the game is hosted in a tab, the user probably doesn't want it to be disposed each time the tab is switched
-			Dispose();
-			UnitializeImageSource();
-			UninitializeGraphicsDevice();
-		}
-
 		private void StartRendering()
 		{
 			if (_isRendering)
@@ -331,7 +424,5 @@ namespace MonoGame.Framework.WpfInterop
 				_renderTarget = null;
 			}
 		}
-
-		#endregion
 	}
 }

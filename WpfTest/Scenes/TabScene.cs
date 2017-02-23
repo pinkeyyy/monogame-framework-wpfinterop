@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Framework.WpfInterop;
 using System;
+using System.Diagnostics;
 using WpfTest.Components;
 
 namespace WpfTest.Scenes
@@ -17,6 +18,8 @@ namespace WpfTest.Scenes
 		private int _numberOfConstructorCalls;
 		private DateTime _lastInitCall, _lastDisposeCall;
 		private TextComponent _text;
+		internal static int Counter;
+		private int _id;
 
 		public TabScene()
 		{
@@ -33,9 +36,22 @@ namespace WpfTest.Scenes
 			new WpfGraphicsDeviceService(this);
 
 			base.Initialize();
-
 			_text = new TextComponent(this, "dummy", new Vector2(0, 0));
 			Components.Add(_text);
+			_id = ++Counter;
+			Debug.WriteLine($"Tabbed game {_id} initialize");
+			Activated += OnActivated;
+			Deactivated += OnDeactivated;
+		}
+
+		private void OnDeactivated(object sender, EventArgs e)
+		{
+			Debug.WriteLine($"Tabbed game {_id} deactivate");
+		}
+
+		private void OnActivated(object sender, EventArgs eventArgs)
+		{
+			Debug.WriteLine($"Tabbed game {_id} activate");
 		}
 
 		protected override void Dispose(bool disposing)
@@ -50,6 +66,7 @@ namespace WpfTest.Scenes
 			// this service is added by the "new WpfGraphicsDeviceService(this)" call in Initialize
 			// stupid behaviour, I know, but it is 1:1 copy of xna/monogame behaviour
 			Services.RemoveService(typeof(IGraphicsDeviceService));
+			Debug.WriteLine($"Tabbed game {_id} dispose");
 		}
 
 		protected override void Update(GameTime gameTime)
@@ -58,7 +75,8 @@ namespace WpfTest.Scenes
 							  $"Number of initialize calls: {_numberOfInitializeCalls}" + Environment.NewLine +
 							  $"Last initialize call at: {_lastInitCall}" + Environment.NewLine +
 							  $"Number of dispose calls: {_numberOfDisposeCalls}" + Environment.NewLine +
-							  $"Last dispose call at: {_lastDisposeCall}";
+							  $"Last dispose call at: {_lastDisposeCall}" + Environment.NewLine +
+							  $"IsActive: {IsActive}";
 			_text.Text = updatedText;
 			base.Update(gameTime);
 		}

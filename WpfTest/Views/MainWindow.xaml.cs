@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using WpfTest.Scenes;
 
 namespace WpfTest.Views
 {
@@ -12,28 +13,36 @@ namespace WpfTest.Views
 			InitializeComponent();
 		}
 
+		/// <summary>
+		/// Opens the window once.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		private static void OpenSingleWindow<T>() where T : Window, new()
+		{
+			var w = new T();
+			w.Show();
+		}
+
 		private void OpenNewWindow(object sender, RoutedEventArgs e)
 		{
-			var w = new SimpleWindow();
-			w.Show();
+			OpenSingleWindow<SimpleWindow>();
 		}
 
 		private void OpenTextInputWindow(object sender, RoutedEventArgs e)
 		{
-			var w = new TextInputWindow();
-			w.Show();
+			OpenSingleWindow<TextInputWindow>();
 		}
 
 		private void OpenMultipleGameWindow(object sender, RoutedEventArgs e)
 		{
-			var w = new MultiSceneWindow();
-			w.Show();
+			OpenSingleWindow<MultiSceneWindow>();
 		}
 
 		private void OpenTabbedGameWindow(object sender, RoutedEventArgs e)
 		{
-			var w = new TabWindow();
-			w.Show();
+			// manually reset counters so we always have the same id's per tab
+			TabScene.Counter = 0;
+			OpenSingleWindow<TabWindow>();
 		}
 	}
 }
