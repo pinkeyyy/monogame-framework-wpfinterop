@@ -1,12 +1,12 @@
-﻿using DeviceType = SharpDX.Direct3D9.DeviceType;
-using Microsoft.Xna.Framework.Graphics;
-using PresentInterval = SharpDX.Direct3D9.PresentInterval;
-using SharpDX.Direct3D9;
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
+using Microsoft.Xna.Framework.Graphics;
+using SharpDX.Direct3D9;
+using DeviceType = SharpDX.Direct3D9.DeviceType;
+using PresentInterval = SharpDX.Direct3D9.PresentInterval;
 using Texture = SharpDX.Direct3D9.Texture;
 
-namespace MonoGame.Framework.WpfInterop
+namespace MonoGame.Framework.WpfInterop.Internals
 {
 	/// <summary>
 	/// Represents a Direct3D 9 device required for Direct3D 11 interoperability.

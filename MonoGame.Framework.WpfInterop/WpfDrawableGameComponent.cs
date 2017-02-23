@@ -4,6 +4,9 @@ using System;
 
 namespace MonoGame.Framework.WpfInterop
 {
+	/// <summary>
+	/// A drawable game component that allows drawing as well as updating.
+	/// </summary>
 	public class WpfDrawableGameComponent : WpfGameComponent, IDrawable
 	{
 		#region Fields

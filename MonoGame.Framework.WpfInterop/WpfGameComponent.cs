@@ -3,6 +3,9 @@ using System;
 
 namespace MonoGame.Framework.WpfInterop
 {
+	/// <summary>
+	/// A game component much like the original, but compatible with <see cref="WpfGame"/>.
+	/// </summary>
 	public class WpfGameComponent : IGameComponent, IUpdateable
 	{
 		#region Fields

@@ -51,8 +51,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="D3D11Host.cs" />
-    <Compile Include="D3D11Image.cs" />
-    <Compile Include="D3D9.cs" />
+    <Compile Include="Internals\D3D11Image.cs" />
+    <Compile Include="Internals\D3D9.cs" />
     <Compile Include="Input\WindowHelper.cs" />
     <Compile Include="Input\WpfKeyboard.cs" />
     <Compile Include="Input\WpfMouse.cs" />
