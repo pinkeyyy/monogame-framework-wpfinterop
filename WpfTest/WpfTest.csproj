@@ -60,6 +60,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Views\MultiSceneWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\WpfControlWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -76,12 +80,16 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Components\TextComponent.cs" />
     <Compile Include="Scenes\ContentScene.cs" />
     <Compile Include="Scenes\CubeDemoScene.cs" />
     <Compile Include="DrawMeComponent.cs" />
     <Compile Include="FpsComponent.cs" />
     <Compile Include="Scenes\TextInputScene.cs" />
     <Compile Include="TimingComponent.cs" />
+    <Compile Include="Views\MultiSceneWindow.xaml.cs">
+      <DependentUpon>MultiSceneWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\WpfControlWindow.xaml.cs">
       <DependentUpon>WpfControlWindow.xaml</DependentUpon>
     </Compile>

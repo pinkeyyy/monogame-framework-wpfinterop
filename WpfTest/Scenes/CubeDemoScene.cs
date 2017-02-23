@@ -3,6 +3,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Framework.WpfInterop;
 using MonoGame.Framework.WpfInterop.Input;
+using System.Windows;
+using WpfTest.Components;
 
 namespace WpfTest.Scenes
 {
@@ -13,8 +15,6 @@ namespace WpfTest.Scenes
 	/// </summary>
 	public class CubeDemoScene : WpfGame
 	{
-		#region Fields
-
 		private BasicEffect _basicEffect;
 		private WpfKeyboard _keyboard;
 		private KeyboardState _keyboardState;
@@ -27,88 +27,25 @@ namespace WpfTest.Scenes
 		private Matrix _worldMatrix;
 		private bool _disposed;
 
-		#endregion
-
-		#region Methods
-
-		protected override void Dispose(bool disposing)
-		{
-			if (_disposed)
-				return;
-			Services.RemoveService(typeof(IGraphicsDeviceService));
-			Components.Clear();
-			_disposed = true;
-
-			_vertexBuffer.Dispose();
-			_vertexBuffer = null;
-
-			_vertexDeclaration.Dispose();
-			_vertexDeclaration = null;
-
-			_basicEffect.Dispose();
-			_basicEffect = null;
-		}
-
-		protected override void Draw(GameTime time)
-		{
-			GraphicsDevice.Clear(_mouseState.LeftButton == ButtonState.Pressed ? Color.Black : Color.CornflowerBlue);
-
-			GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-			GraphicsDevice.SetVertexBuffer(_vertexBuffer);
-
-			// Rotate cube around up-axis.
-			var rot = _keyboardState.IsKeyDown(Keys.Space) ? 0 : (float)time.TotalGameTime.TotalMilliseconds / 1000 * MathHelper.TwoPi;
-			_basicEffect.World = Matrix.CreateRotationY(rot) * _worldMatrix;
-
-			foreach (var pass in _basicEffect.CurrentTechnique.Passes)
-			{
-				pass.Apply();
-				GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, 12);
-			}
-
-			// since we share the GraphicsDevice with all hosts, we need to save and reset the states
-			// this has to be done because spriteBatch internally sets states and doesn't reset themselves, fucking over any 3D rendering (which happens in the DemoScene)
-
-			var blend = GraphicsDevice.BlendState;
-			var depth = GraphicsDevice.DepthStencilState;
-			var raster = GraphicsDevice.RasterizerState;
-			var sampler = GraphicsDevice.SamplerStates[0];
-
-			base.Draw(time);
-
-			GraphicsDevice.BlendState = blend;
-			GraphicsDevice.DepthStencilState = depth;
-			GraphicsDevice.RasterizerState = raster;
-			GraphicsDevice.SamplerStates[0] = sampler;
-		}
-
 		protected override void Initialize()
 		{
 			_disposed = false;
-			// this is stupid behaviour copied from xna
-			// the ctor call registers IGraphicsDeviceService in the current game.Services
-			// better:? Services.Add<IGraphicsDeviceService>(new WpfGraphicsDeviceService(GraphicsDevice))
-			var gds = new WpfGraphicsDeviceService(this);
+			new WpfGraphicsDeviceService(this);
 			Components.Add(new FpsComponent(this));
 			Components.Add(new TimingComponent(this));
-
+			Components.Add(new TextComponent(this, "Leftclick anywhere in the game to change background color", new Vector2(1, 0), HorizontalAlignment.Right));
 
 			float tilt = MathHelper.ToRadians(0);  // 0 degree angle
 												   // Use the world matrix to tilt the cube along x and y axes.
 			_worldMatrix = Matrix.CreateRotationX(tilt) * Matrix.CreateRotationY(tilt);
 			_viewMatrix = Matrix.CreateLookAt(new Vector3(5, 5, 5), Vector3.Zero, Vector3.Up);
 
-			_projectionMatrix = Matrix.CreatePerspectiveFieldOfView(
-				MathHelper.ToRadians(45),  // 45 degree angle
-				(float)GraphicsDevice.Viewport.Width /
-				(float)GraphicsDevice.Viewport.Height,
-				1.0f, 100.0f);
 
 			_basicEffect = new BasicEffect(GraphicsDevice);
 
 			_basicEffect.World = _worldMatrix;
 			_basicEffect.View = _viewMatrix;
-			_basicEffect.Projection = _projectionMatrix;
+			RefreshProjection();
 
 			// primitive color
 			_basicEffect.AmbientLightColor = new Vector3(0.1f, 0.1f, 0.1f);
@@ -149,12 +86,11 @@ namespace WpfTest.Scenes
 				}
 			}
 
-			_vertexDeclaration = new VertexDeclaration(new[]
-			{
+			_vertexDeclaration = new VertexDeclaration(
 				new VertexElement(0, VertexElementFormat.Vector3, VertexElementUsage.Position, 0),
 				new VertexElement(12, VertexElementFormat.Vector3, VertexElementUsage.Normal, 0),
 				new VertexElement(24, VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0)
-			});
+			);
 
 			Vector3 topLeftFront = new Vector3(-1.0f, 1.0f, 1.0f);
 			Vector3 bottomLeftFront = new Vector3(-1.0f, -1.0f, 1.0f);
@@ -236,6 +172,38 @@ namespace WpfTest.Scenes
 			base.Initialize();
 		}
 
+		protected override void Dispose(bool disposing)
+		{
+			if (_disposed)
+				return;
+
+			Components.Clear();
+			_disposed = true;
+
+			_vertexBuffer.Dispose();
+			_vertexBuffer = null;
+
+			_vertexDeclaration.Dispose();
+			_vertexDeclaration = null;
+
+			_basicEffect.Dispose();
+			_basicEffect = null;
+		}
+
+		/// <summary>
+		/// Update projection matrix values, both in the calculated matrix <see cref="_projectionMatrix"/> as well as
+		/// the <see cref="_basicEffect"/> projection.
+		/// </summary>
+		private void RefreshProjection()
+		{
+			_projectionMatrix = Matrix.CreatePerspectiveFieldOfView(
+				MathHelper.ToRadians(45), // 45 degree angle
+				(float)GraphicsDevice.Viewport.Width /
+				(float)GraphicsDevice.Viewport.Height,
+				1.0f, 100.0f);
+			_basicEffect.Projection = _projectionMatrix;
+		}
+
 		protected override void Update(GameTime gameTime)
 		{
 			_mouseState = _mouse.GetState();
@@ -244,6 +212,42 @@ namespace WpfTest.Scenes
 			base.Update(gameTime);
 		}
 
-		#endregion
+		protected override void Draw(GameTime time)
+		{
+			//The projection depends on viewport dimensions (aspect ratio).
+			// Because WPF controls can be resized at any time (user resizes window)
+			// we need to refresh the values each draw call, otherwise cube will look distorted to user
+			RefreshProjection();
+
+			GraphicsDevice.Clear(_mouseState.LeftButton == ButtonState.Pressed ? Color.Black : Color.CornflowerBlue);
+
+			GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+			GraphicsDevice.SetVertexBuffer(_vertexBuffer);
+
+			// Rotate cube around up-axis.
+			var rot = _keyboardState.IsKeyDown(Keys.Space) ? 0 : (float)time.TotalGameTime.TotalMilliseconds / 1000 * MathHelper.TwoPi;
+			_basicEffect.World = Matrix.CreateRotationY(rot) * _worldMatrix;
+
+			foreach (var pass in _basicEffect.CurrentTechnique.Passes)
+			{
+				pass.Apply();
+				GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, 12);
+			}
+
+			// since we share the GraphicsDevice with all hosts, we need to save and reset the states
+			// this has to be done because spriteBatch internally sets states and doesn't reset themselves, fucking over any 3D rendering (which happens in the DemoScene)
+
+			var blend = GraphicsDevice.BlendState;
+			var depth = GraphicsDevice.DepthStencilState;
+			var raster = GraphicsDevice.RasterizerState;
+			var sampler = GraphicsDevice.SamplerStates[0];
+
+			base.Draw(time);
+
+			GraphicsDevice.BlendState = blend;
+			GraphicsDevice.DepthStencilState = depth;
+			GraphicsDevice.RasterizerState = raster;
+			GraphicsDevice.SamplerStates[0] = sampler;
+		}
 	}
 }
