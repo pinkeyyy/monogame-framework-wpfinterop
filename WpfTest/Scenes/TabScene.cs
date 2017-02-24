@@ -21,6 +21,7 @@ namespace WpfTest.Scenes
 		private TextComponent _text;
 		internal static int Counter;
 		private int _id;
+		private bool _debugWriteIsActiveStateOnce;
 
 		protected override void Initialize()
 		{
@@ -36,6 +37,7 @@ namespace WpfTest.Scenes
 			Debug.WriteLine($"Tabbed game {_id} initialize");
 			Activated += OnActivated;
 			Deactivated += OnDeactivated;
+			_debugWriteIsActiveStateOnce = true;
 		}
 
 		private void OnDeactivated(object sender, EventArgs e)
@@ -43,6 +45,7 @@ namespace WpfTest.Scenes
 			Debug.WriteLine($"Tabbed game {_id} deactivate");
 			_lastDeactivateCall = DateTime.Now;
 			_numberOfDeactivateCalls++;
+			_debugWriteIsActiveStateOnce = true;
 		}
 
 		private void OnActivated(object sender, EventArgs eventArgs)
@@ -50,6 +53,7 @@ namespace WpfTest.Scenes
 			Debug.WriteLine($"Tabbed game {_id} activate");
 			_lastActivateCall = DateTime.Now;
 			_numberOfActivateCalls++;
+			_debugWriteIsActiveStateOnce = true;
 		}
 
 		protected override void Dispose(bool disposing)
@@ -75,6 +79,11 @@ namespace WpfTest.Scenes
 							  $"Number of deactivate calls: {_numberOfDeactivateCalls}" + Environment.NewLine +
 							  $"Last deactivate call at: {_lastDeactivateCall}" + Environment.NewLine +
 							  $"IsActive: {IsActive}";
+			if (_debugWriteIsActiveStateOnce)
+			{
+				_debugWriteIsActiveStateOnce = false;
+				Debug.WriteLine($"Tabbed game {_id} IsActive: {IsActive}");
+			}
 			_text.Text = updatedText;
 			base.Update(gameTime);
 		}
