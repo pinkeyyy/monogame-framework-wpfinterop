@@ -1,4 +1,6 @@
-﻿namespace WpfTest.Views
+﻿using System;
+
+namespace WpfTest.Views
 {
 	/// <summary>
 	/// Interaction logic for TabWindow.xaml
@@ -8,6 +10,13 @@
 		public TabWindow()
 		{
 			InitializeComponent();
+		}
+
+		public void Log(string message)
+		{
+			var now = DateTime.Now.TimeOfDay;
+			LogOutput.AppendText($"{now}: {message}{Environment.NewLine}");
+			LogOutput.ScrollToEnd();
 		}
 	}
 }

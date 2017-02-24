@@ -5,12 +5,15 @@
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:scenes="clr-namespace:WpfTest.Scenes"
 		xmlns:wpfTest="clr-namespace:WpfTest"
-		xmlns:views="clr-namespace:WpfTest.Views"
 		xmlns:userControls="clr-namespace:WpfTest.UserControls"
 		mc:Ignorable="d"
 		Title="TabWindow" MinHeight="400" MinWidth="600" Width="600" Height="400">
 	<Grid>
-		<TabControl>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*" />
+			<RowDefinition Height="100" />
+		</Grid.RowDefinitions>
+		<TabControl x:Name="TabControl">
 			<TabItem Header="First game tab">
 				<scenes:TabScene Margin="10" />
 			</TabItem>
@@ -54,9 +57,10 @@
 					<scenes:TabScene Margin="10" Grid.Row="1" />
 				</Grid>
 			</TabItem>
-			<TabItem Header="Fourth game tab">
-				<userControls:GameInUserControl />
+			<TabItem Header="Fourth game tab (usercontrol)">
+				<userControls:GameInUserControl Margin="10" />
 			</TabItem>
 		</TabControl>
+		<TextBox AcceptsReturn="True" Grid.Row="1" x:Name="LogOutput" BorderThickness="0" Background="Transparent" IsReadOnly="True" VerticalAlignment="Stretch" VerticalScrollBarVisibility="Visible" />
 	</Grid>
 </Window>

@@ -1,9 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Framework.WpfInterop;
+using MonoGame.Framework.WpfInterop.Internals;
 using System;
-using System.Diagnostics;
 using WpfTest.Components;
+using WpfTest.Views;
+using Color = Microsoft.Xna.Framework.Color;
 
 namespace WpfTest.Scenes
 {
@@ -21,7 +23,9 @@ namespace WpfTest.Scenes
 		private TextComponent _text;
 		internal static int Counter;
 		private int _id;
-		private bool _debugWriteIsActiveStateOnce;
+		private bool _lastIsActiveState;
+
+		private TabWindow _tabWindow;
 
 		protected override void Initialize()
 		{
@@ -31,29 +35,34 @@ namespace WpfTest.Scenes
 			new WpfGraphicsDeviceService(this);
 
 			base.Initialize();
+			// not really pretty, but gets the job done
+			var parent = LogicalTreeHelperEx.FindParent<TabWindow>(this);
+			if (parent == null)
+			{
+				throw new NotSupportedException("This scene only works on TabWindow right now");
+			}
+			_tabWindow = parent;
 			_text = new TextComponent(this, "dummy", new Vector2(0, 0));
 			Components.Add(_text);
 			_id = ++Counter;
-			Debug.WriteLine($"Tabbed game {_id} initialize");
+			_tabWindow.Log($"Tabbed game {_id} initialize");
 			Activated += OnActivated;
 			Deactivated += OnDeactivated;
-			_debugWriteIsActiveStateOnce = true;
+
 		}
 
 		private void OnDeactivated(object sender, EventArgs e)
 		{
-			Debug.WriteLine($"Tabbed game {_id} deactivate");
+			_tabWindow.Log($"Tabbed game {_id} deactivate");
 			_lastDeactivateCall = DateTime.Now;
 			_numberOfDeactivateCalls++;
-			_debugWriteIsActiveStateOnce = true;
 		}
 
 		private void OnActivated(object sender, EventArgs eventArgs)
 		{
-			Debug.WriteLine($"Tabbed game {_id} activate");
+			_tabWindow.Log($"Tabbed game {_id} activate");
 			_lastActivateCall = DateTime.Now;
 			_numberOfActivateCalls++;
-			_debugWriteIsActiveStateOnce = true;
 		}
 
 		protected override void Dispose(bool disposing)
@@ -67,7 +76,7 @@ namespace WpfTest.Scenes
 			// this service is added by the "new WpfGraphicsDeviceService(this)" call in Initialize
 			// stupid behaviour, I know, but it is 1:1 copy of xna/monogame behaviour
 			Services.RemoveService(typeof(IGraphicsDeviceService));
-			Debug.WriteLine($"Tabbed game {_id} dispose");
+			_tabWindow.Log($"Tabbed game {_id} dispose");
 		}
 
 		protected override void Update(GameTime gameTime)
@@ -79,10 +88,10 @@ namespace WpfTest.Scenes
 							  $"Number of deactivate calls: {_numberOfDeactivateCalls}" + Environment.NewLine +
 							  $"Last deactivate call at: {_lastDeactivateCall}" + Environment.NewLine +
 							  $"IsActive: {IsActive}";
-			if (_debugWriteIsActiveStateOnce)
+			if (_lastIsActiveState != IsActive)
 			{
-				_debugWriteIsActiveStateOnce = false;
-				Debug.WriteLine($"Tabbed game {_id} IsActive: {IsActive}");
+				_lastIsActiveState = IsActive;
+				_tabWindow.Log($"Tabbed game {_id} change of IsActive to: {IsActive}");
 			}
 			_text.Text = updatedText;
 			base.Update(gameTime);
