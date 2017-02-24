@@ -5,6 +5,8 @@
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:scenes="clr-namespace:WpfTest.Scenes"
 		xmlns:wpfTest="clr-namespace:WpfTest"
+		xmlns:views="clr-namespace:WpfTest.Views"
+		xmlns:userControls="clr-namespace:WpfTest.UserControls"
 		mc:Ignorable="d"
 		Title="TabWindow" MinHeight="400" MinWidth="600" Width="600" Height="400">
 	<Grid>
@@ -41,6 +43,19 @@
 			</TabItem>
 			<TabItem Header="Second game tab">
 				<scenes:TabScene Margin="10" />
+			</TabItem>
+			<TabItem Header="Third game tab">
+				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="*" />
+					</Grid.RowDefinitions>
+					<TextBlock Text="Game tab with additional text" />
+					<scenes:TabScene Margin="10" Grid.Row="1" />
+				</Grid>
+			</TabItem>
+			<TabItem Header="Fourth game tab">
+				<userControls:GameInUserControl />
 			</TabItem>
 		</TabControl>
 	</Grid>
