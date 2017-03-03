@@ -14,3 +14,4 @@ ipch/
 *.DotSettings.user
 **/packages/*
 /!Releases
+_ReSharper.Caches

@@ -61,13 +61,13 @@ Now you can use it in any of your WPF forms:
 
 # Features
 
-Some of the Monogame classes where incompatible with WPF (Game always spawns it's own window, Mouse didn't care which control had focus, ..) so they had to be reimplemented.
+Some of the Monogame classes are incompatible with WPF (Game always spawns its own window, Mouse doesn't care which control has focus, ..) so they had to be reimplemented.
 
 As a convention, all reimplemented classes will have the prefix Wpf:
 
-* WpfGame as a replacement for Game class. Note that due to WPF limitations the WpfGame will always run at a maximum 60 FPS in fixed step (Update and Draw are always called, no Updates are skipped)
+* WpfGame as a replacement for Game class. Note that due to WPF limitations the WpfGame will always run at a maximum 60 FPS in fixed step (Update and Draw are always called, no Updates are skipped). It is possible to lower the framerate via TargetElapsedTime)
 * WpfMouse and WpfKeyboard provide input per host instance. When multiple WpfGame instances are spawned, only one will receive input at any time
-* WpfGraphicsDeviceService as a dummy implementation of IGraphicsDeviceService to prevent Content manager from crashing (it looks for IGraphicsDeviceService inside Services)
+* WpfGraphicsDeviceService as a dummy implementation of IGraphicsDeviceService (required by the content manager)
 * WpfGameComponent and WpfDrawableGameComponent as a replacement for the original ones which required a reference to a Game instance
 
 ## Mouse behaviour
@@ -78,9 +78,9 @@ By default the game takes focus on mouse (h)over. This can be disabled via the F
 
 ### Mouse capture
 
-By default the game captures the mouse. This allows capture of mouse events outside the game (e.g. user holds and drags the mouse outside the window, then releases it -> game will still receive mouse up event). The downside is that no overlayed controls (e.g. textboxes) will ever receive focus.
+By default the game captures the mouse. This allows capture of mouse events outside the game (e.g. user holds and drags the mouse outside the window, then releases it -> game will still receive mouse up event). The downside is that no overlayed controls (e.g. textboxes on top of the game) will ever receive focus.
 
-Alternatively this can be toggled off via CaptureMouseWithin property of WpfMouse and then allows focus on overlayed controls. Downside is that mouse events outside the game window are no longer registered (e.g. user holds and drags the mouse outside the window, then releases it -> game will still think the mouse is down until the window receives focus again)
+Alternatively this can be toggled off via CaptureMouseWithin property of WpfMouse and then allows focus on overlayed controls. The downside is that mouse events outside the game window are no longer registered (e.g. user holds and drags the mouse outside the window, then releases it -> game will still think the mouse is down until the window receives focus again)
 
 # Gotchas
 
@@ -110,17 +110,14 @@ In a normal monogame the rendertarget would be used like this:
 	_spriteBatch.End();
 ```
 
-** The reason is that the interop sample cannot use the backbuffer (null) and instead uses it's own rendertarget.**
-
-So the code needs to look like this instead:
-
+Instead there is always a rendertarget (internally used to display the renderoutput in WPF), thus in a WPF control the code needs to look like this instead:
 
 ```
 
-	// get the wpf rendertarget
+	// get and cache the wpf rendertarget (there is always a default rendertarget)
 	var wpfRenderTarget = (RenderTarget2D)GraphicsDevice.GetRenderTargets()[0].RenderTarget;
 
-	// Draw into rendertarget
+	// Draw into custom rendertarget
 	GraphicsDevice.SetRenderTarget(_rendertarget);
 	GraphicsDevice.Clear(Color.Transparent);
 	_spriteBatch.Begin();
@@ -128,6 +125,7 @@ So the code needs to look like this instead:
 	_spriteBatch.End();
 
 	// instead of setting null, set it back to the wpf rendertarget
+	// this will ensure that the output will end up visible to the user
 	GraphicsDevice.SetRenderTarget(wpfRenderTarget);
 
 
@@ -138,13 +136,15 @@ So the code needs to look like this instead:
 	_spriteBatch.End();
 ```
 
+**The reason for this behaviour that the interop sample cannot use the backbuffer (null) and instead needs to use its own rendertarget.**
+
 ## TabControls
 
 It is perfectly possible to use the WpfGame controls inside TabControls.
 
-By default, WPF would fully unload any tab that was deactivated (e.g. when switching to another tab) and fully reload the tab when switching back.
+By default, WPF fully unloads any tab that is deactivated (e.g. when switching to another tab) and fully reloads the tab when switching back.
 
-The WpfGame instance does not adhere to this.
+The WpfGame **does not unload** in these cases.
 
 ### WpfGame.Activated/Deactivated
 
@@ -154,7 +154,7 @@ If the parent window loses focus, Deactivated is fired (but only for the active 
 
 ### Initialize/Dispose
 
-Initialize is only called once (per instance, when the window is created) and Dispose is called for all tabs once the window closes.
+Initialize is only called once (per instance, when the window is created) and Dispose is called for every game instance once the window closes.
 
 This means, that initialize is called even for those instances that are in "disabled" tabs. However IsActive can be used to determine whether the current game is inside the active tab (see below).
 
