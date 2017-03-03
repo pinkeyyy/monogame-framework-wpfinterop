@@ -362,14 +362,13 @@ namespace MonoGame.Framework.WpfInterop
 				// get time since last actual rendering
 
 				var deltaTicks = renderingEventArgs.RenderingTime.Ticks - _lastRenderingTime.Ticks;
-				var delta = TimeSpan.FromTicks(deltaTicks);
 				// accumulate until time is greater than target time between frames
-				if (delta >= TargetElapsedTime)
+				if (deltaTicks >= TargetElapsedTime.Ticks)
 				{
 					// enough time has passed to draw a single frame
 
 					GraphicsDevice.SetRenderTarget(_renderTarget);
-					Render(new GameTime(renderingEventArgs.RenderingTime, delta));
+					Render(new GameTime(renderingEventArgs.RenderingTime, TimeSpan.FromTicks(deltaTicks)));
 					GraphicsDevice.Flush();
 
 					_lastRenderingTime = renderingEventArgs.RenderingTime;
