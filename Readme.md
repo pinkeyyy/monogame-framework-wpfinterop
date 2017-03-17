@@ -168,6 +168,10 @@ Update/Draw are still called for all inactive tabs and any inactive tab has the 
 
 # Changelog
 
+**v1.5.1**
+
+* Fixed bug that causes flickering when draw calls put the system under load ([issue #12](https://gitlab.com/MarcStan/MonoGame.Framework.WpfInterop/issues/12))
+
 **v1.5.0**
 
 * Fixed bug that causes crashes when WpfGame was hosted inside TabControls and tabs where switched
