@@ -5,7 +5,7 @@
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:scenes="clr-namespace:WpfTest.Scenes"
 		mc:Ignorable="d"
-		Title="Window" Height="768" Width="1024">
+		Title="Inputtest Window" Height="768" Width="1024">
 	<Grid>
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="120" />

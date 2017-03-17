@@ -1,17 +1,22 @@
-﻿namespace WpfTest.Views
+﻿using MonoGame.Framework.WpfInterop;
+
+namespace WpfTest.Views
 {
-	/// <summary>
-	/// Interaction logic for SimpleWindow.xaml
-	/// </summary>
-	public partial class SimpleWindow
-	{
-		#region Constructors
+    /// <summary>
+    /// Interaction logic for SimpleWindow.xaml
+    /// </summary>
+    public partial class SimpleWindow
+    {
+        #region Constructors
 
-		public SimpleWindow()
-		{
-			InitializeComponent();
-		}
+        public SimpleWindow(WpfGame scene, string title)
+        {
+            InitializeComponent();
 
-		#endregion
-	}
+            Title = title;
+            RootGrid.Children.Add(scene);
+        }
+
+        #endregion
+    }
 }

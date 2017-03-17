@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using MonoGame.Framework.WpfInterop;
+using System.Windows;
 using WpfTest.Scenes;
 
 namespace WpfTest.Views
@@ -17,32 +18,38 @@ namespace WpfTest.Views
 		/// Opens the window once.
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
-		private static void OpenSingleWindow<T>() where T : Window, new()
+		private static void OpenWindow<T>() where T : Window, new()
 		{
 			var w = new T();
 			w.Show();
 		}
 
+		private static void OpenCustomWindow(WpfGame game, string title)
+		{
+			var w = new SimpleWindow(game, title);
+			w.Show();
+		}
+
 		private void OpenNewWindow(object sender, RoutedEventArgs e)
 		{
-			OpenSingleWindow<SimpleWindow>();
+			OpenCustomWindow(new CubeDemoScene(), "Cube demo scene");
 		}
 
 		private void OpenTextInputWindow(object sender, RoutedEventArgs e)
 		{
-			OpenSingleWindow<TextInputWindow>();
+			OpenWindow<TextInputWindow>();
 		}
 
 		private void OpenMultipleGameWindow(object sender, RoutedEventArgs e)
 		{
-			OpenSingleWindow<MultiSceneWindow>();
+			OpenWindow<MultiSceneWindow>();
 		}
 
 		private void OpenTabbedGameWindow(object sender, RoutedEventArgs e)
 		{
 			// manually reset counters so we always have the same id's per tab
 			TabScene.Counter = 0;
-			OpenSingleWindow<TabWindow>();
+			OpenWindow<TabWindow>();
 		}
 	}
 }

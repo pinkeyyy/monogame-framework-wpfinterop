@@ -1,7 +1,7 @@
-﻿using System;
-using System.Runtime.InteropServices;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using SharpDX.Direct3D9;
+using System;
+using System.Runtime.InteropServices;
 using DeviceType = SharpDX.Direct3D9.DeviceType;
 using PresentInterval = SharpDX.Direct3D9.PresentInterval;
 using Texture = SharpDX.Direct3D9.Texture;
@@ -16,6 +16,8 @@ namespace MonoGame.Framework.WpfInterop.Internals
 	/// directly because WPF requires Direct3D 9. The <see cref="D3D9"/> class creates a new
 	/// Direct3D 9 device which can be used for sharing resources between Direct3D 11 and Direct3D
 	/// 9. Call <see cref="GetSharedTexture"/> to convert a texture from Direct3D 11 to Direct3D 9.
+	/// The code requires Windows Vista and up using the Windows Display Driver Model (WDDM).
+	/// It does not work with the Windows 2000 Display Driver Model (XDDM).
 	/// </remarks>
 	internal class D3D9 : IDisposable
 	{
@@ -165,13 +167,6 @@ namespace MonoGame.Framework.WpfInterop.Internals
 			if (_disposed)
 				throw new ObjectDisposedException(GetType().FullName);
 		}
-
-		#endregion
-
-		#region Other
-
-		// The code requires Windows Vista and up using the Windows Display Driver Model (WDDM).
-		// It does not work with the Windows 2000 Display Driver Model (XDDM).
 
 		#endregion
 	}
