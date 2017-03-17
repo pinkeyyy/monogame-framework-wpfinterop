@@ -7,6 +7,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Color = Microsoft.Xna.Framework.Color;
 
 namespace MonoGame.Framework.WpfInterop
 {
@@ -30,10 +31,19 @@ namespace MonoGame.Framework.WpfInterop
 		private TimeSpan _lastRenderingTime;
 		private bool _loaded;
 
-		// Image source:
-		private RenderTarget2D _renderTarget;
+		/// <summary>
+		/// Shared between WPF and monogame.
+		/// </summary>
+		private RenderTarget2D _sharedRenderTarget;
+		/// <summary>
+		/// Actual rendertarget that monogame will draw into.
+		/// Once a draw call is finished it then copies its content to <see cref="_sharedRenderTarget"/>.
+		/// This prevents flickering of the screen when WPF decides to draw the rendertarget to screen while monogame is midway populating it.
+		/// </summary>
+		private RenderTarget2D _cachedRenderTarget;
 		private bool _resetBackBuffer;
 		private bool _isActive;
+		private SpriteBatch _spriteBatch;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="D3D11Host"/> class.
@@ -133,9 +143,15 @@ namespace MonoGame.Framework.WpfInterop
 		{
 			if (_disposed)
 				return;
+
 			_disposed = true;
 			Activated = null;
 			Deactivated = null;
+			if (_spriteBatch != null)
+			{
+				_spriteBatch.Dispose();
+				_spriteBatch = null;
+			}
 			Dispose(true);
 		}
 
@@ -195,17 +211,29 @@ namespace MonoGame.Framework.WpfInterop
 		private void CreateBackBuffer()
 		{
 			_d3D11Image.SetBackBuffer(null);
-			if (_renderTarget != null)
+			if (_sharedRenderTarget != null)
 			{
-				_renderTarget.Dispose();
-				_renderTarget = null;
+				_sharedRenderTarget.Dispose();
+				_sharedRenderTarget = null;
+			}
+
+			if (_cachedRenderTarget != null)
+			{
+				_cachedRenderTarget.Dispose();
+				_cachedRenderTarget = null;
 			}
 
 			int width = Math.Max((int)ActualWidth, 1);
 			int height = Math.Max((int)ActualHeight, 1);
-			_renderTarget = new RenderTarget2D(_graphicsDevice, width, height, false, SurfaceFormat.Bgr32,
+			_sharedRenderTarget = new RenderTarget2D(_graphicsDevice, width, height, false, SurfaceFormat.Bgr32,
 				DepthFormat.Depth24Stencil8, 0, RenderTargetUsage.DiscardContents, true);
-			_d3D11Image.SetBackBuffer(_renderTarget);
+			_d3D11Image.SetBackBuffer(_sharedRenderTarget);
+
+			// internal rendertarget; all user draws render into this before we draw it to the actual back buffer
+			// that way flickering of screen will be prevented when under heavy system load (such as when using rendertargets on intel graphics: https://gitlab.com/MarcStan/MonoGame.Framework.WpfInterop/issues/12)
+			// -> always preserve its contents so worst case user gets to see the old screen again
+			_cachedRenderTarget = new RenderTarget2D(_graphicsDevice, width, height, false, SurfaceFormat.Bgr32,
+				DepthFormat.Depth24Stencil8, 0, RenderTargetUsage.PreserveContents, false);
 		}
 
 		private void InitializeImageSource()
@@ -262,6 +290,7 @@ namespace MonoGame.Framework.WpfInterop
 			}
 
 			InitializeGraphicsDevice();
+			_spriteBatch = new SpriteBatch(_graphicsDevice);
 			InitializeImageSource();
 
 			// workaround for exceptions in Onloaded being swallowed by default on x64
@@ -366,8 +395,8 @@ namespace MonoGame.Framework.WpfInterop
 				if (deltaTicks >= TargetElapsedTime.Ticks)
 				{
 					// enough time has passed to draw a single frame
-
-					GraphicsDevice.SetRenderTarget(_renderTarget);
+					// draw into cache
+					GraphicsDevice.SetRenderTarget(_cachedRenderTarget);
 					Render(new GameTime(renderingEventArgs.RenderingTime, TimeSpan.FromTicks(deltaTicks)));
 					GraphicsDevice.Flush();
 
@@ -378,11 +407,21 @@ namespace MonoGame.Framework.WpfInterop
 			{
 				// always force render when backbuffer is reset (happens during resize due to size change)
 				// if we don't always render it will remain black until next frame is drawn
-				GraphicsDevice.SetRenderTarget(_renderTarget);
+				// draw into cache
+				GraphicsDevice.SetRenderTarget(_cachedRenderTarget);
 				Render(new GameTime(renderingEventArgs.RenderingTime, TimeSpan.Zero));
 				GraphicsDevice.Flush();
 			}
 
+			// poor man's swap chain implementation
+			// now draw from cache to backbuffer
+			GraphicsDevice.SetRenderTarget(_sharedRenderTarget);
+			_spriteBatch.Begin();
+			_spriteBatch.Draw(_cachedRenderTarget, _graphicsDevice.Viewport.Bounds, Color.White);
+			_spriteBatch.End();
+			GraphicsDevice.Flush();
+
+			GraphicsDevice.SetRenderTarget(_cachedRenderTarget);
 			_d3D11Image.Invalidate(); // Always invalidate D3DImage to reduce flickering
 									  // during window resizing.
 
@@ -417,10 +456,15 @@ namespace MonoGame.Framework.WpfInterop
 				_d3D11Image.Dispose();
 				_d3D11Image = null;
 			}
-			if (_renderTarget != null)
+			if (_sharedRenderTarget != null)
 			{
-				_renderTarget.Dispose();
-				_renderTarget = null;
+				_sharedRenderTarget.Dispose();
+				_sharedRenderTarget = null;
+			}
+			if (_cachedRenderTarget != null)
+			{
+				_cachedRenderTarget.Dispose();
+				_cachedRenderTarget = null;
 			}
 		}
 	}
