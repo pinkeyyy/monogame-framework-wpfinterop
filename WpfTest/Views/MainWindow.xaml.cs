@@ -51,5 +51,10 @@ namespace WpfTest.Views
 			TabScene.Counter = 0;
 			OpenWindow<TabWindow>();
 		}
+
+		private void OpenRendertargetGameWindow(object sender, RoutedEventArgs e)
+		{
+			OpenCustomWindow(new RenderTargetScene(), "Rendertarget scene");
+		}
 	}
 }

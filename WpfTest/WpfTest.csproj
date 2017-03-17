@@ -93,6 +93,7 @@
     </Compile>
     <Compile Include="Components\TextComponent.cs" />
     <Compile Include="HyperlinkExtensions.cs" />
+    <Compile Include="Scenes\RenderTargetScene.cs" />
     <Compile Include="Scenes\TabScene.cs" />
     <Compile Include="Scenes\CubeDemoScene.cs" />
     <Compile Include="Components\FpsComponent.cs" />
