@@ -29,7 +29,7 @@ namespace MonoGame.Framework.WpfInterop
 		private D3D11Image _d3D11Image;
 		private bool _disposed;
 		private TimeSpan _lastRenderingTime;
-		private bool _loaded;
+		private bool _loaded, _graphicsDeviceInitialized;
 
 		/// <summary>
 		/// Shared between WPF and monogame.
@@ -141,6 +141,15 @@ namespace MonoGame.Framework.WpfInterop
 
 		public void Dispose()
 		{
+			// each of those has its own check for disposed
+			StopRendering();
+			UnitializeImageSource();
+			if (_graphicsDeviceInitialized)
+			{
+				UninitializeGraphicsDevice();
+				_graphicsDeviceInitialized = false;
+			}
+
 			if (_disposed)
 				return;
 
@@ -289,7 +298,11 @@ namespace MonoGame.Framework.WpfInterop
 				IsActive = true;
 			}
 
-			InitializeGraphicsDevice();
+			if (!_graphicsDeviceInitialized)
+			{
+				InitializeGraphicsDevice();
+				_graphicsDeviceInitialized = true;
+			}
 			_spriteBatch = new SpriteBatch(_graphicsDevice);
 			InitializeImageSource();
 
@@ -342,10 +355,7 @@ namespace MonoGame.Framework.WpfInterop
 
 		private void OnWindowClosed(object sender, EventArgs e)
 		{
-			StopRendering();
 			Dispose();
-			UnitializeImageSource();
-			UninitializeGraphicsDevice();
 		}
 
 		private void OnWindowActivated(object sender, EventArgs e)
@@ -448,11 +458,11 @@ namespace MonoGame.Framework.WpfInterop
 
 		private void UnitializeImageSource()
 		{
-			_d3D11Image.IsFrontBufferAvailableChanged -= OnIsFrontBufferAvailableChanged;
 			Source = null;
 
 			if (_d3D11Image != null)
 			{
+				_d3D11Image.IsFrontBufferAvailableChanged -= OnIsFrontBufferAvailableChanged;
 				_d3D11Image.Dispose();
 				_d3D11Image = null;
 			}
