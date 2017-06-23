@@ -56,5 +56,12 @@ namespace WpfTest.Views
 		{
 			OpenCustomWindow(new RenderTargetScene(), "Rendertarget scene");
 		}
+
+		private void OpenCloseableTabWindow(object sender, RoutedEventArgs e)
+		{
+			// manually reset counters so we always have the same id's per tab
+			TabScene.Counter = 0;
+			OpenWindow<CloseableTabWindow>();
+		}
 	}
 }

@@ -60,6 +60,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="UserControls\CloseableHeader.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="UserControls\GameInUserControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -69,6 +73,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\TabWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\CloseableTabWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -93,12 +101,17 @@
     </Compile>
     <Compile Include="Components\TextComponent.cs" />
     <Compile Include="HyperlinkExtensions.cs" />
+    <Compile Include="ILogToUi.cs" />
     <Compile Include="Scenes\RenderTargetScene.cs" />
     <Compile Include="Scenes\TabScene.cs" />
     <Compile Include="Scenes\CubeDemoScene.cs" />
     <Compile Include="Components\FpsComponent.cs" />
     <Compile Include="Scenes\TextInputScene.cs" />
     <Compile Include="Components\TimingComponent.cs" />
+    <Compile Include="UserControls\CloseableTabItem.cs" />
+    <Compile Include="UserControls\CloseableHeader.xaml.cs">
+      <DependentUpon>CloseableHeader.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\GameInUserControl.xaml.cs">
       <DependentUpon>GameInUserControl.xaml</DependentUpon>
     </Compile>
@@ -107,6 +120,9 @@
     </Compile>
     <Compile Include="Views\TabWindow.xaml.cs">
       <DependentUpon>TabWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CloseableTabWindow.xaml.cs">
+      <DependentUpon>CloseableTabWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TextInputWindow.xaml.cs">
       <DependentUpon>TextInputWindow.xaml</DependentUpon>
