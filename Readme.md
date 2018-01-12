@@ -168,6 +168,10 @@ Update/Draw are still called for all inactive tabs and any inactive tab has the 
 
 # Changelog
 
+**v1.5.3**
+
+* Now locking D3D11 base image while cloning rendertarget (fixes hitching issues that occured on some systems)
+
 **v1.5.2**
 
 * Fixed bug where User calling Dispose manually would decrement reference counter for graphicsdevice twice ([issue #14](https://gitlab.com/MarcStan/MonoGame.Framework.WpfInterop/issues/14))

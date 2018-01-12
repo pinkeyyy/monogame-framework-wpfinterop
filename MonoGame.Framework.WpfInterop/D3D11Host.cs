@@ -423,6 +423,7 @@ namespace MonoGame.Framework.WpfInterop
 				GraphicsDevice.Flush();
 			}
 
+			_d3D11Image.Lock();
 			// poor man's swap chain implementation
 			// now draw from cache to backbuffer
 			GraphicsDevice.SetRenderTarget(_sharedRenderTarget);
@@ -431,6 +432,7 @@ namespace MonoGame.Framework.WpfInterop
 			_spriteBatch.End();
 			GraphicsDevice.Flush();
 
+			_d3D11Image.Unlock();
 			GraphicsDevice.SetRenderTarget(_cachedRenderTarget);
 			_d3D11Image.Invalidate(); // Always invalidate D3DImage to reduce flickering
 									  // during window resizing.
