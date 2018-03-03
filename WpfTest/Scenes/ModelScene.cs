@@ -70,10 +70,7 @@ namespace WpfTest.Scenes
 			RefreshProjection();
 
 			GraphicsDevice.Clear(Color.CornflowerBlue);
-			GraphicsDevice.DepthStencilState = new DepthStencilState
-			{
-				DepthBufferEnable = true
-			};
+			GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 			GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
 			if (IsActive)

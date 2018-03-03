@@ -222,10 +222,7 @@ namespace WpfTest.Scenes
 			RefreshProjection();
 
 			GraphicsDevice.Clear(_mouseState.LeftButton == ButtonState.Pressed ? Color.Black : Color.CornflowerBlue);
-			GraphicsDevice.DepthStencilState = new DepthStencilState
-			{
-				DepthBufferEnable = true
-			};
+			GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 			GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 			GraphicsDevice.SetVertexBuffer(_vertexBuffer);
 
