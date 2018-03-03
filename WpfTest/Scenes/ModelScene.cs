@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Framework.WpfInterop;
+using System.IO;
+using System.Windows;
 using WpfTest.Components;
 
 namespace WpfTest.Scenes
@@ -23,6 +25,7 @@ namespace WpfTest.Scenes
 			new WpfGraphicsDeviceService(this);
 			Components.Add(new FpsComponent(this));
 			Components.Add(new TimingComponent(this));
+			Components.Add(new TextComponent(this, File.ReadAllText("Content\\credits.txt"), new Vector2(1, 0), HorizontalAlignment.Right));
 
 			float tilt = MathHelper.ToRadians(0);  // 0 degree angle
 												   // Use the world matrix to tilt the cube along x and y axes.
