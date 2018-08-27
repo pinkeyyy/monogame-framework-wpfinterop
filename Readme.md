@@ -1,3 +1,5 @@
+[Gitlab](https://gitlab.com/MarcStan) is just a read-only mirror, [github](https://github.com/MarcStan) has the most up-to-date content.
+
 # MonoGame WPF Interop
 
 This adds WPF support to MonoGame (tested with version 3.5.1.1679).

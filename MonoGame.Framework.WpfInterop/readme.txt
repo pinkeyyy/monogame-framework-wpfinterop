@@ -7,10 +7,10 @@ You can host as many MonoGame controls in Wpf as you want. Note that WPF is limi
 # Important changes
 
 1. Derive from MonoGame.Framework.WpfInterop.WpfGame instead of Microsoft.Xna.Framework.Game
-2. Keyboard and Mouse events from MonoGame classes will not work with this implementation. Use WpfKeyboard and WpfMouse instead. Read this issue for details: https://gitlab.com/MarcStan/MonoGame.Framework.WpfInterop/issues/1
+2. Keyboard and Mouse events from MonoGame classes will not work with this implementation. Use WpfKeyboard and WpfMouse instead. Read this issue for details: https://github.com/MarcStan/MonoGame.Framework.WpfInterop/issues/1
 3. GraphicsDeviceManager can no longer be used (it requires a reference to Game). Use WpfGraphicsDeviceService instead (it requires a reference to WpfGame).
 4. Using rendertargets works, but requires slightly different code (namely there is no backbuffer when you set a "null" rendertarget).
-	You need to grab the existing (internal) rendertarget before setting your own and afterwards set this rendertarget again. See the section "RenderTargets" in the readme: https://gitlab.com/MarcStan/MonoGame.Framework.WpfInterop
+	You need to grab the existing (internal) rendertarget before setting your own and afterwards set this rendertarget again. See the section "RenderTargets" in the readme: https://github.com/MarcStan/MonoGame.Framework.WpfInterop
 
 ## Example
 
@@ -55,4 +55,4 @@ Now you can use this class in any of your WPF application:
 
 # Special note with when hosting WpfGame inside TabControls
 
-See section Gotchas\TabControls in the main readme at: https://gitlab.com/MarcStan/MonoGame.Framework.WpfInterop
+See section Gotchas\TabControls in the main readme at: https://github.com/MarcStan/MonoGame.Framework.WpfInterop
