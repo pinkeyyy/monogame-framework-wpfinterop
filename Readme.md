@@ -13,7 +13,7 @@ ___
 
 https://nuget.org/packages/MonoGame.Framework.WpfInterop/
 
-	PM> Install-Package MonoGame.Framework.WpfInterop
+    PM> Install-Package MonoGame.Framework.WpfInterop
    
 By adding the NuGet package to a project it is possible to host MonoGame inside WPF windows.
 
@@ -23,36 +23,36 @@ By adding the NuGet package to a project it is possible to host MonoGame inside 
 
 public class MyGame : WpfGame
 {
-	private IGraphicsDeviceService _graphicsDeviceManager;
-	private WpfKeyboard _keyboard;
-	private WpfMouse _mouse;
+    private IGraphicsDeviceService _graphicsDeviceManager;
+    private WpfKeyboard _keyboard;
+    private WpfMouse _mouse;
 
-	protected override void Initialize()
-	{
-		// must be initialized. required by Content loading and rendering (will add itself to the Services)
-		_graphicsDeviceManager = new WpfGraphicsDeviceService(this);
+    protected override void Initialize()
+    {
+        // must be initialized. required by Content loading and rendering (will add itself to the Services)
+        _graphicsDeviceManager = new WpfGraphicsDeviceService(this);
 
-		// wpf and keyboard need reference to the host control in order to receive input
-		// this means every WpfGame control will have it's own keyboard & mouse manager which will only react if the mouse is in the control
-		_keyboard = new WpfKeyboard(this);
-		_mouse = new WpfMouse(this);
-		
-		// must be called after the WpfGraphicsDeviceService instance was created
-		base.Initialize();
+        // wpf and keyboard need reference to the host control in order to receive input
+        // this means every WpfGame control will have it's own keyboard & mouse manager which will only react if the mouse is in the control
+        _keyboard = new WpfKeyboard(this);
+        _mouse = new WpfMouse(this);
+        
+        // must be called after the WpfGraphicsDeviceService instance was created
+        base.Initialize();
 
-		// content loading now possible
-	}
+        // content loading now possible
+    }
 
-	protected override void Update(GameTime time)
-	{
-		// every update we can now query the keyboard & mouse for our WpfGame
-		var mouseState = _mouse.GetState();
-		var keyboardState = _keyboard.GetState();
-	}
+    protected override void Update(GameTime time)
+    {
+        // every update we can now query the keyboard & mouse for our WpfGame
+        var mouseState = _mouse.GetState();
+        var keyboardState = _keyboard.GetState();
+    }
 
-	protected override void Draw(GameTime time)
-	{
-	}
+    protected override void Draw(GameTime time)
+    {
+    }
 }
 
 ```
@@ -94,48 +94,48 @@ In a normal monogame the rendertarget would be used like this:
 
 ```
 
-	// Draw into rendertarget
-	GraphicsDevice.SetRenderTarget(_rendertarget);
-	GraphicsDevice.Clear(Color.Transparent);
-	_spriteBatch.Begin();
-	_spriteBatch.Draw(_texture, Vector2.Zero, Color.White);
-	_spriteBatch.End();
+    // Draw into rendertarget
+    GraphicsDevice.SetRenderTarget(_rendertarget);
+    GraphicsDevice.Clear(Color.Transparent);
+    _spriteBatch.Begin();
+    _spriteBatch.Draw(_texture, Vector2.Zero, Color.White);
+    _spriteBatch.End();
 
-	// setting null means we want to draw to the backbuffer again
-	GraphicsDevice.SetRenderTarget(null);
+    // setting null means we want to draw to the backbuffer again
+    GraphicsDevice.SetRenderTarget(null);
 
 
-	// these draw calls will now render onto backbuffer
-	GraphicsDevice.Clear(Color.CornflowerBlue);
-	_spriteBatch.Begin();
-	_spriteBatch.Draw(this.rendertarget, Vector2.Zero, Color.White);
-	_spriteBatch.End();
+    // these draw calls will now render onto backbuffer
+    GraphicsDevice.Clear(Color.CornflowerBlue);
+    _spriteBatch.Begin();
+    _spriteBatch.Draw(this.rendertarget, Vector2.Zero, Color.White);
+    _spriteBatch.End();
 ```
 
 Instead there is always a rendertarget (internally used to display the renderoutput in WPF), thus in a WPF control the code needs to look like this instead:
 
 ```
 
-	// get and cache the wpf rendertarget (there is always a default rendertarget)
-	var wpfRenderTarget = (RenderTarget2D)GraphicsDevice.GetRenderTargets()[0].RenderTarget;
+    // get and cache the wpf rendertarget (there is always a default rendertarget)
+    var wpfRenderTarget = (RenderTarget2D)GraphicsDevice.GetRenderTargets()[0].RenderTarget;
 
-	// Draw into custom rendertarget
-	GraphicsDevice.SetRenderTarget(_rendertarget);
-	GraphicsDevice.Clear(Color.Transparent);
-	_spriteBatch.Begin();
-	_spriteBatch.Draw(_texture, Vector2.Zero, Color.White);
-	_spriteBatch.End();
+    // Draw into custom rendertarget
+    GraphicsDevice.SetRenderTarget(_rendertarget);
+    GraphicsDevice.Clear(Color.Transparent);
+    _spriteBatch.Begin();
+    _spriteBatch.Draw(_texture, Vector2.Zero, Color.White);
+    _spriteBatch.End();
 
-	// instead of setting null, set it back to the wpf rendertarget
-	// this will ensure that the output will end up visible to the user
-	GraphicsDevice.SetRenderTarget(wpfRenderTarget);
+    // instead of setting null, set it back to the wpf rendertarget
+    // this will ensure that the output will end up visible to the user
+    GraphicsDevice.SetRenderTarget(wpfRenderTarget);
 
 
-	// these draw calls will now render onto backbuffer
-	GraphicsDevice.Clear(Color.CornflowerBlue);
-	_spriteBatch.Begin();
-	_spriteBatch.Draw(this.rendertarget, Vector2.Zero, Color.White);
-	_spriteBatch.End();
+    // these draw calls will now render onto backbuffer
+    GraphicsDevice.Clear(Color.CornflowerBlue);
+    _spriteBatch.Begin();
+    _spriteBatch.Draw(this.rendertarget, Vector2.Zero, Color.White);
+    _spriteBatch.End();
 ```
 
 **The reason for this behaviour that the interop sample cannot use the backbuffer (null) and instead needs to use its own rendertarget.**

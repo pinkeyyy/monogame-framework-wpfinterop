@@ -2,21 +2,21 @@
 
 namespace WpfTest.Views
 {
-	/// <summary>
-	/// Interaction logic for TabWindow.xaml
-	/// </summary>
-	public partial class TabWindow : ILogToUi
-	{
-		public TabWindow()
-		{
-			InitializeComponent();
-		}
+    /// <summary>
+    /// Interaction logic for TabWindow.xaml
+    /// </summary>
+    public partial class TabWindow : ILogToUi
+    {
+        public TabWindow()
+        {
+            InitializeComponent();
+        }
 
-		public void Log(string message)
-		{
-			var now = DateTime.Now.TimeOfDay;
-			LogOutput.AppendText($"{now}: {message}{Environment.NewLine}");
-			LogOutput.ScrollToEnd();
-		}
-	}
+        public void Log(string message)
+        {
+            var now = DateTime.Now.TimeOfDay;
+            LogOutput.AppendText($"{now}: {message}{Environment.NewLine}");
+            LogOutput.ScrollToEnd();
+        }
+    }
 }

@@ -1,7 +1,7 @@
 ﻿namespace WpfTest
 {
-	public interface ILogToUi
-	{
-		void Log(string message);
-	}
+    public interface ILogToUi
+    {
+        void Log(string message);
+    }
 }
