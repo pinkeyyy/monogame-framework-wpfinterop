@@ -13,7 +13,7 @@
 		<copyright>Copyright MarcStan 2016 - 2018</copyright>
 		<tags>monogame, wpf, interop</tags>
 		<dependencies>
-			<dependency id="MonoGame.Framework.WindowsDX" version="3.5.1.1679" />
+			<dependency id="MonoGame.Framework.WindowsDX" version="3.6.0.1625" />
 		</dependencies>
 	</metadata>
 	<files>
