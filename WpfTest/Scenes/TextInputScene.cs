@@ -17,7 +17,6 @@ namespace WpfTest.Scenes
     /// </summary>
     public class TextInputScene : WpfGame
     {
-        private IGraphicsDeviceService _graphicsDeviceManager;
         private WpfKeyboard _keyboard;
         private KeyboardState _keyboardState;
         private KeyboardState _previousKeyboardState;
@@ -69,8 +68,8 @@ namespace WpfTest.Scenes
 
         protected override void Initialize()
         {
+            new WpfGraphicsDeviceService(this);
             base.Initialize();
-            _graphicsDeviceManager = new WpfGraphicsDeviceService(this);
 
             _keyboard = new WpfKeyboard(this);
             _mouse = new WpfMouse(this);

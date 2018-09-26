@@ -51,6 +51,8 @@ namespace WpfTest.Scenes
 
             Components.Clear();
             _disposed = true;
+
+            base.Dispose(disposing);
         }
 
         /// <summary>

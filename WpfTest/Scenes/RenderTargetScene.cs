@@ -18,13 +18,9 @@ namespace WpfTest.Scenes
         private MouseState _mouseState;
         private Texture2D _pixel;
 
-        public RenderTargetScene()
-        {
-            new WpfGraphicsDeviceService(this);
-        }
-
         protected override void Initialize()
         {
+            new WpfGraphicsDeviceService(this);
             base.Initialize();
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             // no issue for a normal GPU but intel graphics will have trouble with this many rendertargets (and won't run at 60fps)

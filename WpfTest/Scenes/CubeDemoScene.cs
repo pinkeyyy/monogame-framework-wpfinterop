@@ -40,7 +40,6 @@ namespace WpfTest.Scenes
             _worldMatrix = Matrix.CreateRotationX(tilt) * Matrix.CreateRotationY(tilt);
             _viewMatrix = Matrix.CreateLookAt(new Vector3(5, 5, 5), Vector3.Zero, Vector3.Up);
 
-
             _basicEffect = new BasicEffect(GraphicsDevice);
 
             _basicEffect.World = _worldMatrix;
@@ -188,6 +187,8 @@ namespace WpfTest.Scenes
 
             _basicEffect.Dispose();
             _basicEffect = null;
+
+            base.Dispose(disposing);
         }
 
         /// <summary>

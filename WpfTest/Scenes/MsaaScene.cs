@@ -181,6 +181,8 @@ namespace WpfTest.Scenes
 
             _basicEffect.Dispose();
             _basicEffect = null;
+
+            base.Dispose(disposing);
         }
 
         /// <summary>
