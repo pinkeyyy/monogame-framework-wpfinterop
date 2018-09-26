@@ -32,7 +32,10 @@ namespace WpfTest.Scenes
         protected override void Initialize()
         {
             _disposed = false;
-            _graphicsDeviceService = new WpfGraphicsDeviceService(this);
+            _graphicsDeviceService = new WpfGraphicsDeviceService(this)
+            {
+                PreferMultiSampling = true
+            };
             Components.Add(new FpsComponent(this));
             Components.Add(new TimingComponent(this));
             _msaaMessage = new TextComponent(this, GetMsaaMessage(), new Vector2(1, 0), HorizontalAlignment.Right);

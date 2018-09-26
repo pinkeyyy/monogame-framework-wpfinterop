@@ -10,7 +10,9 @@ namespace MonoGame.Framework.WpfInterop
     /// </summary>
     public class WpfGraphicsDeviceService : IGraphicsDeviceService, IGraphicsDeviceManager
     {
-        /// TODO: rename this class to WpfGraphicsDeviceManager as that's the monogame name for it as well, prob. done in future 2.0 release as it's quite a breaking change
+        internal const int MsaaSampleLimit = 32;
+
+        // TODO: rename this class to WpfGraphicsDeviceManager as that's the monogame name for it as well, prob. done in future 2.0 release as it's quite a breaking change
 
         private readonly WpfGame _host;
 
@@ -27,25 +29,31 @@ namespace MonoGame.Framework.WpfInterop
             if (host.Services.GetService(typeof(IGraphicsDeviceService)) != null)
                 throw new NotSupportedException("A graphics device service is already registered.");
 
+            if (host.GraphicsDevice == null)
+                throw new ArgumentException("Provided host graphics device is null.");
+
             GraphicsDevice = host.GraphicsDevice;
+            _host.GraphicsDevice.DeviceReset += (sender, args) => DeviceReset?.Invoke(this, args);
+            _host.GraphicsDevice.DeviceResetting += (sender, args) => DeviceResetting?.Invoke(this, args);
+
             host.Services.AddService(typeof(IGraphicsDeviceService), this);
-            ApplyChanges();
+            host.Services.AddService(typeof(IGraphicsDeviceManager), this);
         }
 
         #endregion
 
         #region Events
 
-        [Obsolete("Dummy implementation will never call DeviceCreated")]
+        /// <inheritdoc />
         public event EventHandler<EventArgs> DeviceCreated;
 
-        [Obsolete("Dummy implementation will never call DeviceDisposing")]
+        /// <inheritdoc />
         public event EventHandler<EventArgs> DeviceDisposing;
 
-        [Obsolete("Dummy implementation will never call DeviceReset")]
+        /// <inheritdoc />
         public event EventHandler<EventArgs> DeviceReset;
 
-        [Obsolete("Dummy implementation will never call DeviceResetting")]
+        /// <inheritdoc />
         public event EventHandler<EventArgs> DeviceResetting;
 
         #endregion
@@ -95,7 +103,8 @@ namespace MonoGame.Framework.WpfInterop
 
         public void CreateDevice()
         {
-
+            ApplyChanges();
+            DeviceCreated?.Invoke(this, EventArgs.Empty);
         }
 
         public void EndDraw()
@@ -105,19 +114,19 @@ namespace MonoGame.Framework.WpfInterop
 
         public void ApplyChanges()
         {
-            // set to windows limit, if gpu doesn't support it, monogame will autom. scale it down to the next supported level
-            const int msaaLimit = 32;
             var w = Math.Max((int)_host.ActualWidth, 1);
             var h = Math.Max((int)_host.ActualHeight, 1);
             var pp = new PresentationParameters
             {
-                MultiSampleCount = PreferMultiSampling ? msaaLimit : 0,
+                // set to windows limit, if gpu doesn't support it, monogame will autom. scale it down to the next supported level
+                MultiSampleCount = PreferMultiSampling ? MsaaSampleLimit : 0,
                 BackBufferWidth = w,
                 BackBufferHeight = h,
                 DeviceWindowHandle = IntPtr.Zero
             };
-            // TODO: would be so easy to just call reset. but for some reason monogame doesn't want the WindowHandle to be null on reset (but it's totally fine to be null on create)
-            //GraphicsDevice.Reset(pp);
+            // would be so easy to just call reset. but for some reason monogame doesn't want the WindowHandle to be null on reset (but it's totally fine to be null on create)
+            // GraphicsDevice.Reset(pp);
+            DeviceDisposing?.Invoke(this, EventArgs.Empty);
             // manually work around it by telling our base implementation to handle the changes
             _host.RecreateGraphicsDevice(pp);
         }

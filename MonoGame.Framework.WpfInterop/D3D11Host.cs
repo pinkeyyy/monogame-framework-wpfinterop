@@ -191,6 +191,12 @@ namespace MonoGame.Framework.WpfInterop
         protected virtual void Initialize()
         {
             _disposed = false;
+
+            var graphicsDeviceManager = (IGraphicsDeviceManager)Services.GetService(typeof(IGraphicsDeviceManager));
+            if (graphicsDeviceManager == null)
+                throw new NotSupportedException($"Services must contain a {nameof(IGraphicsDeviceManager)} instance");
+
+            graphicsDeviceManager.CreateDevice();
         }
 
         /// <summary>
@@ -232,7 +238,7 @@ namespace MonoGame.Framework.WpfInterop
         }
 
         /// <summary>
-        /// Helper that 
+        /// Helper that allows applying new presentation parameters.
         /// </summary>
         /// <param name="pp"></param>
         public void RecreateGraphicsDevice(PresentationParameters pp)
@@ -287,7 +293,7 @@ namespace MonoGame.Framework.WpfInterop
             var sampleCount = 0;
             if (_cachedRenderTarget != null)
             {
-                // if there was a previous rendertarget, reuse it's sample count
+                // if there was a previous rendertarget, reuse its sample count
                 sampleCount = _cachedRenderTarget.MultiSampleCount;
                 _cachedRenderTarget.Dispose();
                 _cachedRenderTarget = null;
@@ -361,7 +367,7 @@ namespace MonoGame.Framework.WpfInterop
             window.Closed += OnWindowClosed;
             var tabControl = LogicalTreeHelperEx.FindParent<TabControl>(this);
             // if there is any parent that is a tabitem, we must be inside a TabControl
-            // 
+
             var windowIsInTab = tabControl != null;
             if (windowIsInTab)
             {
