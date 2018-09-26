@@ -97,6 +97,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\DpiScalingWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\MultiMsaaWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -136,6 +140,7 @@
     <Compile Include="HyperlinkExtensions.cs" />
     <Compile Include="ILogToUi.cs" />
     <Compile Include="Scenes\ModelScene.cs" />
+    <Compile Include="Scenes\DpiScalingScene.cs" />
     <Compile Include="Scenes\MsaaScene.cs" />
     <Compile Include="Scenes\RenderTargetScene.cs" />
     <Compile Include="Scenes\TabScene.cs" />
@@ -149,6 +154,9 @@
     </Compile>
     <Compile Include="UserControls\GameInUserControl.xaml.cs">
       <DependentUpon>GameInUserControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DpiScalingWindow.xaml.cs">
+      <DependentUpon>DpiScalingWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MultiMsaaWindow.xaml.cs">
       <DependentUpon>MultiMsaaWindow.xaml</DependentUpon>

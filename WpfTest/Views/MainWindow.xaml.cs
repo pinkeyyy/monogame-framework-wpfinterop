@@ -78,5 +78,10 @@ namespace WpfTest.Views
         {
             OpenWindow<MultiMsaaWindow>();
         }
+
+        private void OpenDpiScalingWindow(object sender, RoutedEventArgs e)
+        {
+            OpenWindow<DpiScalingWindow>();
+        }
     }
 }

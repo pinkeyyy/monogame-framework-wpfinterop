@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Windows;
 
 namespace MonoGame.Framework.WpfInterop
 {
@@ -10,7 +11,7 @@ namespace MonoGame.Framework.WpfInterop
     public class WpfGraphicsDeviceService : IGraphicsDeviceService, IGraphicsDeviceManager
     {
         /// TODO: rename this class to WpfGraphicsDeviceManager as that's the monogame name for it as well, prob. done in future 2.0 release as it's quite a breaking change
-        /// 
+
         private readonly WpfGame _host;
 
         #region Constructors
@@ -54,6 +55,30 @@ namespace MonoGame.Framework.WpfInterop
         public GraphicsDevice GraphicsDevice { get; }
 
         public bool PreferMultiSampling { get; set; }
+
+        /// <summary>
+        /// Gets the scaling factor that is applied to the attached gamecontrol.
+        /// For legacy compatibility this always defaults to a factor of 1.
+        /// If your monitor is scaled at 200%, then this will cause the game to render at only half the size.
+        /// In order to render at full native resolution, set this value to the correct <see cref="SystemDpiScalingFactor"/>.
+        /// </summary>
+        public double DpiScalingFactor
+        {
+            get => _host.DpiScalingFactor;
+            set
+            {
+                if (value <= 0)
+                    throw new ArgumentOutOfRangeException(nameof(DpiScalingFactor), "value must be positive");
+                _host.DpiScalingFactor = value;
+            }
+        }
+
+        /// <summary>
+        /// When called returns the system Dpi scaling factor.
+        /// The scaling factor may be different between different monitors.
+        /// This value will always return the value based on the monitor where the attached gamecontrol is positioned.
+        /// </summary>
+        public double SystemDpiScalingFactor => PresentationSource.FromVisual(_host).CompositionTarget.TransformToDevice.M11;
 
         public int PreferredBackBufferWidth => (int)_host.ActualWidth;
 
