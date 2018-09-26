@@ -97,6 +97,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\MultiMsaaWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\MultiSceneWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -132,6 +136,7 @@
     <Compile Include="HyperlinkExtensions.cs" />
     <Compile Include="ILogToUi.cs" />
     <Compile Include="Scenes\ModelScene.cs" />
+    <Compile Include="Scenes\MsaaScene.cs" />
     <Compile Include="Scenes\RenderTargetScene.cs" />
     <Compile Include="Scenes\TabScene.cs" />
     <Compile Include="Scenes\CubeDemoScene.cs" />
@@ -144,6 +149,9 @@
     </Compile>
     <Compile Include="UserControls\GameInUserControl.xaml.cs">
       <DependentUpon>GameInUserControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\MultiMsaaWindow.xaml.cs">
+      <DependentUpon>MultiMsaaWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MultiSceneWindow.xaml.cs">
       <DependentUpon>MultiSceneWindow.xaml</DependentUpon>
