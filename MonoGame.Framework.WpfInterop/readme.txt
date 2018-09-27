@@ -23,6 +23,8 @@ public class MyGame : WpfGame
     protected override void Initialize()
     {
         // must be initialized. required by Content loading and rendering (will add itself to the Services)
+        // note that MonoGame requires this to be initialized in the constructor, while WpfInterop requires it to
+        // be called inside Initialize (before base.Initialize())
         _graphicsDeviceManager = new WpfGraphicsDeviceService(this);
 
         // wpf and keyboard need reference to the host control in order to receive input
@@ -53,6 +55,8 @@ Now you can use this class in any of your WPF application:
 
 <MyGame Width="800" Height="480" />
 
+Find more details in the readme at: https://github.com/MarcStan/MonoGame.Framework.WpfInterop
+
 # Special note with when hosting WpfGame inside TabControls
 
-See section Gotchas\TabControls in the main readme at: https://github.com/MarcStan/MonoGame.Framework.WpfInterop
+See section TabControls in the main readme at: https://github.com/MarcStan/MonoGame.Framework.WpfInterop

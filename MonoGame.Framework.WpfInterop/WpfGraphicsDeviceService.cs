@@ -12,8 +12,6 @@ namespace MonoGame.Framework.WpfInterop
     {
         internal const int MsaaSampleLimit = 32;
 
-        // TODO: rename this class to WpfGraphicsDeviceManager as that's the monogame name for it as well, prob. done in future 2.0 release as it's quite a breaking change
-
         private readonly WpfGame _host;
 
         #region Constructors

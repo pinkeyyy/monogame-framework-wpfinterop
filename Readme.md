@@ -2,9 +2,7 @@
 
 # MonoGame WPF Interop
 
-This adds WPF support to MonoGame (tested with version 3.6).
-
-Note that you **need** MonoGame.Framework.WindowsDX (as this interop uses SharpDX). WPF only supports DirectX.
+This adds WPF support to MonoGame (upgraded to and tested with MonoGame 3.7, requires **MonoGame.Framework.WindowsDX**).
 
 You can host as many MonoGame controls in Wpf as you want by using the WpfGame control. Note that they are however limited to 60 FPS (this is a WPF limit).
 
@@ -17,6 +15,20 @@ https://nuget.org/packages/MonoGame.Framework.WpfInterop/
    
 By adding the NuGet package to a project it is possible to host MonoGame inside WPF windows.
 
+___
+## Known issues
+
+### MSAA based rendertargets will thrown an exception on Dispose
+
+Only occurs if WpfGame.UseASingleSharedGraphicsDevice is set to false (which is why it defaults to true).
+
+### Minor memory leak when WpfGame.UseASingleSharedGraphicsDevice = false
+
+The internal implementation uses one rendertarget per WpfGame, so if UseASingleSharedGraphicsDevice is set to false, disposing a WpfGame would crash (as it tried to Dispose the rendertarget, see the issue above).
+
+Instead the rendertarget will NOT be disposed (this causes a minor memory leak anytime you create & destroy a WpfGame instance).
+
+___
 ## Example
 
 ```csharp
@@ -30,6 +42,8 @@ public class MyGame : WpfGame
     protected override void Initialize()
     {
         // must be initialized. required by Content loading and rendering (will add itself to the Services)
+        // note that MonoGame requires this to be initialized in the constructor, while WpfInterop requires it to
+        // be called inside Initialize (before base.Initialize())
         _graphicsDeviceManager = new WpfGraphicsDeviceService(this);
 
         // wpf and keyboard need reference to the host control in order to receive input
@@ -61,7 +75,7 @@ Now you can use it in any of your WPF forms:
 
 &lt;MyGame Width="800" Height="480" />
 
-# Features
+# Breaking changes (compared to monogame)
 
 Some of the Monogame classes are incompatible with WPF (Game always spawns its own window, Mouse doesn't care which control has focus, ..) so they had to be reimplemented.
 
@@ -69,7 +83,7 @@ As a convention, all reimplemented classes will have the prefix Wpf:
 
 * WpfGame as a replacement for Game class. Note that due to WPF limitations the WpfGame will always run at a maximum 60 FPS in fixed step (Update and Draw are always called, no Updates are skipped). It is possible to lower the framerate via TargetElapsedTime)
 * WpfMouse and WpfKeyboard provide input per host instance. When multiple WpfGame instances are spawned, only one will receive input at any time
-* WpfGraphicsDeviceService as a dummy implementation of IGraphicsDeviceService (required by the content manager)
+* WpfGraphicsDeviceService as an implementation of IGraphicsDeviceService and IGraphicsDeviceManager (required by the content manager)
 * WpfGameComponent and WpfDrawableGameComponent as a replacement for the original ones which required a reference to a Game instance
 
 ## Mouse behaviour
@@ -84,7 +98,7 @@ By default the game captures the mouse. This allows capture of mouse events outs
 
 Alternatively this can be toggled off via CaptureMouseWithin property of WpfMouse and then allows focus on overlayed controls. The downside is that mouse events outside the game window are no longer registered (e.g. user holds and drags the mouse outside the window, then releases it -> game will still think the mouse is down until the window receives focus again)
 
-# Gotchas
+# Change in behaviour (compared to monogame)
 
 ## RenderTargets
 
@@ -112,7 +126,7 @@ In a normal monogame the rendertarget would be used like this:
     _spriteBatch.End();
 ```
 
-Instead there is always a rendertarget (internally used to display the renderoutput in WPF), thus in a WPF control the code needs to look like this instead:
+Instead the WPF interop always uses a rendertarget (internally used to display the renderoutput in WPF), thus in a WPF control the code needs to look like this instead:
 
 ```
 
@@ -138,7 +152,7 @@ Instead there is always a rendertarget (internally used to display the renderout
     _spriteBatch.End();
 ```
 
-**The reason for this behaviour that the interop sample cannot use the backbuffer (null) and instead needs to use its own rendertarget.**
+**The reason for this behaviour that the interop sample cannot use the backbuffer (null) and instead needs to use its own rendertarget to interop with WPF.**
 
 ## TabControls
 
@@ -146,7 +160,7 @@ It is perfectly possible to use the WpfGame controls inside TabControls.
 
 By default, WPF fully unloads any tab that is deactivated (e.g. when switching to another tab) and fully reloads the tab when switching back.
 
-The WpfGame **does not unload** in these cases.
+The WpfGame **does not unload** in these cases. See the next few events for details.
 
 ### WpfGame.Activated/Deactivated
 
@@ -163,7 +177,3 @@ This means, that initialize is called even for those instances that are in "disa
 ### WpfGame.IsActive
 
 Update/Draw are still called for all inactive tabs and any inactive tab has the IsActive property on WpfGame set to false. Only the active tab has IsActive set to true (and only when the window is the currently active window).
-
-# Roadmap
-
-* Properly implement GraphicsDeviceService (call all events when appropriate)

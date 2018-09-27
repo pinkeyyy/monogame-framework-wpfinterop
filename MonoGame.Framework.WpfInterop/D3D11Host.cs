@@ -17,19 +17,21 @@ namespace MonoGame.Framework.WpfInterop
     /// </summary>
     public abstract class D3D11Host : Image, IDisposable
     {
-        private static readonly object _graphicsDeviceLock = new object();
+        private static readonly object GraphicsDeviceLock = new object();
 
         private bool _isRendering;
 
-        // The Direct3D 11 device (shared by all D3D11Host elements):
-        private static GraphicsDevice _graphicsDevice;
+        // The Direct3D 11 device (shared by all D3D11Host elements)
+        // TODO: find out why the original implementation had this as static & shared
+        private static GraphicsDevice _staticGraphicsDevice;
+        private GraphicsDevice _graphicsDevice;
         private static bool? _isInDesignMode;
         private static int _referenceCount;
 
         private D3D11Image _d3D11Image;
         private bool _disposed;
         private TimeSpan _lastRenderingTime;
-        private bool _loaded, _graphicsDeviceInitialized;
+        private bool _loaded, GraphicsDeviceInitialized;
 
         /// <summary>
         /// Shared between WPF and monogame.
@@ -45,6 +47,7 @@ namespace MonoGame.Framework.WpfInterop
         private bool _isActive;
         private SpriteBatch _spriteBatch;
         private double _dpiScalingFactor = 1;
+        private static bool _useASingleSharedGraphicsDevice = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="D3D11Host"/> class.
@@ -55,6 +58,33 @@ namespace MonoGame.Framework.WpfInterop
             Stretch = Stretch.Fill;
 
             Loaded += OnLoaded;
+        }
+
+        /// <summary>
+        /// <para>
+        /// Must be set before the first instance is created.
+        /// </para>
+        /// <para>
+        /// Defaults to false, (prior 2.0 the behaviour was as if this was set to true).
+        /// If set to false each WpfGame instance gets its own graphicsdevice.
+        /// If set to true, A single graphics device is shared across all instances of WpfGame.
+        /// </para>
+        /// <para>
+        /// Currently there is bug in monogame when setting this to false AND using MSAA (Disposing rendertargets will crash, so your only option is to not dispose them, causing memoryleaks).
+        /// Meanwhile if this is true, you can Dispose rendertargets just fine.
+        /// </para>
+        /// </summary>
+        public static bool UseASingleSharedGraphicsDevice
+        {
+            get { return _useASingleSharedGraphicsDevice; }
+            set
+            {
+                if (_referenceCount > 0)
+                {
+                    throw new InvalidOperationException($"{nameof(UseASingleSharedGraphicsDevice)} must be set before the first instance is created and cannot be changed during runtime.");
+                }
+                _useASingleSharedGraphicsDevice = value;
+            }
         }
 
         /// <summary>
@@ -142,7 +172,7 @@ namespace MonoGame.Framework.WpfInterop
         /// Gets the graphics device.
         /// </summary>
         /// <value>The graphics device.</value>
-        public GraphicsDevice GraphicsDevice => _graphicsDevice;
+        public GraphicsDevice GraphicsDevice => UseASingleSharedGraphicsDevice ? _staticGraphicsDevice : _graphicsDevice;
 
         /// <summary>
         /// Default services collection.
@@ -166,10 +196,10 @@ namespace MonoGame.Framework.WpfInterop
             // each of those has its own check for disposed
             StopRendering();
             UnitializeImageSource();
-            if (_graphicsDeviceInitialized)
+            if (GraphicsDeviceInitialized)
             {
                 UninitializeGraphicsDevice();
-                _graphicsDeviceInitialized = false;
+                GraphicsDeviceInitialized = false;
             }
 
             if (_disposed)
@@ -214,12 +244,12 @@ namespace MonoGame.Framework.WpfInterop
         {
         }
 
-        private static void InitializeGraphicsDevice()
+        private void InitializeGraphicsDevice()
         {
-            lock (_graphicsDeviceLock)
+            lock (GraphicsDeviceLock)
             {
                 _referenceCount++;
-                if (_referenceCount == 1)
+                if (_referenceCount == 1 || !UseASingleSharedGraphicsDevice)
                 {
                     // Create Direct3D 11 device.
                     var presentationParameters = new PresentationParameters
@@ -227,14 +257,19 @@ namespace MonoGame.Framework.WpfInterop
                         // Do not associate graphics device with window.
                         DeviceWindowHandle = IntPtr.Zero
                     };
-                    CreateSharedGraphicsDevice(presentationParameters);
+                    var gd = CreateSharedGraphicsDevice(presentationParameters);
+                    if (UseASingleSharedGraphicsDevice)
+                        _staticGraphicsDevice = gd;
+                    else
+                        _graphicsDevice = gd;
                 }
             }
         }
 
-        private static void CreateSharedGraphicsDevice(PresentationParameters presentationParameters)
+        private static GraphicsDevice CreateSharedGraphicsDevice(PresentationParameters presentationParameters)
         {
-            _graphicsDevice = new GraphicsDevice(GraphicsAdapter.DefaultAdapter, GraphicsProfile.HiDef, presentationParameters);
+            // TODO: could allow user to chose which adapter to use
+            return new GraphicsDevice(GraphicsAdapter.DefaultAdapter, GraphicsProfile.HiDef, presentationParameters);
         }
 
         /// <summary>
@@ -243,21 +278,21 @@ namespace MonoGame.Framework.WpfInterop
         /// <param name="pp"></param>
         public void RecreateGraphicsDevice(PresentationParameters pp)
         {
-            lock (_graphicsDeviceLock)
+            lock (GraphicsDeviceLock)
             {
-                if (_graphicsDevice == null)
+                if (GraphicsDevice == null)
                     throw new NotSupportedException("Can only recreate graphicsdevice when one already exists. Initalize one first!");
 
                 CreateGraphicsDeviceDependentResources(pp);
             }
         }
 
-        private static void UninitializeGraphicsDevice()
+        private void UninitializeGraphicsDevice()
         {
-            lock (_graphicsDeviceLock)
+            lock (GraphicsDeviceLock)
             {
                 _referenceCount--;
-                if (_referenceCount == 0)
+                if (_referenceCount == 0 || !UseASingleSharedGraphicsDevice)
                 {
                     // dirty workaround. when just calling .Dispose monogame crashes because MonoGame internal _swapChain is null and
                     // they just blindly trust it isn't null and call .Dipose on it
@@ -268,15 +303,18 @@ namespace MonoGame.Framework.WpfInterop
                     // literally anything but 0 will do, our WPF window is already closed at this point (returns 0) so just use a random pointer
                     // technically a swapChain will be attached to this device handle for a few ms before we dispose it again
                     // let's hope attaching it to "1" doesn't break anything
-                    _graphicsDevice.PresentationParameters.DeviceWindowHandle = new IntPtr(1);
+                    GraphicsDevice.PresentationParameters.DeviceWindowHandle = new IntPtr(1);
 
                     // call below will now trigger some events on the GraphicsDevice and we have no way of suppressing them
                     // but we need to call reset to actually create a swapChain, otherwise Dispose will crash
-                    _graphicsDevice.Reset();
+                    GraphicsDevice.Reset();
 
                     // finally we can safely call dispose without receiving NullReferenceException
-                    _graphicsDevice.Dispose();
-                    _graphicsDevice = null;
+                    GraphicsDevice.Dispose();
+                    if (UseASingleSharedGraphicsDevice)
+                        _staticGraphicsDevice = null;
+                    else
+                        _graphicsDevice = null;
                 }
             }
         }
@@ -298,6 +336,8 @@ namespace MonoGame.Framework.WpfInterop
                 _cachedRenderTarget.Dispose();
                 _cachedRenderTarget = null;
             }
+            // if there was a previous rendertarget, reuse its sample count
+            //var sampleCount = _cachedRenderTarget?.MultiSampleCount ?? 0;
 
             int width = Math.Max((int)ActualWidth, 1);
             int height = Math.Max((int)ActualHeight, 1);
@@ -316,17 +356,15 @@ namespace MonoGame.Framework.WpfInterop
             var height = pp.BackBufferHeight;
             var ms = pp.MultiSampleCount;
 
-            _sharedRenderTarget = new RenderTarget2D(_graphicsDevice, width, height, false, SurfaceFormat.Bgr32,
+            _sharedRenderTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Bgr32,
                     DepthFormat.Depth24Stencil8, 0, RenderTargetUsage.DiscardContents, true);
             _d3D11Image.SetBackBuffer(_sharedRenderTarget);
 
             // internal rendertarget; all user draws render into this before we draw it to the actual back buffer
             // that way flickering of screen will be prevented when under heavy system load (such as when using rendertargets on intel graphics: https://gitlab.com/MarcStan/MonoGame.Framework.WpfInterop/issues/12)
             // -> always preserve its contents so worst case user gets to see the old screen again
-            _cachedRenderTarget = new RenderTarget2D(_graphicsDevice, width, height, false, SurfaceFormat.Bgr32,
+            _cachedRenderTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Bgr32,
                 DepthFormat.Depth24Stencil8, ms, RenderTargetUsage.PreserveContents, false);
-
-            _spriteBatch = new SpriteBatch(_graphicsDevice);
         }
 
         private void InitializeImageSource()
@@ -335,6 +373,7 @@ namespace MonoGame.Framework.WpfInterop
             _d3D11Image.IsFrontBufferAvailableChanged += OnIsFrontBufferAvailableChanged;
             CreateBackBuffer();
             Source = _d3D11Image;
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
         }
 
         private void OnIsFrontBufferAvailableChanged(object sender, DependencyPropertyChangedEventArgs eventArgs)
@@ -382,10 +421,10 @@ namespace MonoGame.Framework.WpfInterop
                 IsActive = true;
             }
 
-            if (!_graphicsDeviceInitialized)
+            if (!GraphicsDeviceInitialized)
             {
                 InitializeGraphicsDevice();
-                _graphicsDeviceInitialized = true;
+                GraphicsDeviceInitialized = true;
             }
             InitializeImageSource();
 
@@ -514,7 +553,7 @@ namespace MonoGame.Framework.WpfInterop
             // now draw from cache to backbuffer
             GraphicsDevice.SetRenderTarget(_sharedRenderTarget);
             _spriteBatch.Begin();
-            _spriteBatch.Draw(_cachedRenderTarget, _graphicsDevice.Viewport.Bounds, Color.White);
+            _spriteBatch.Draw(_cachedRenderTarget, GraphicsDevice.Viewport.Bounds, Color.White);
             _spriteBatch.End();
             GraphicsDevice.Flush();
 
@@ -561,7 +600,16 @@ namespace MonoGame.Framework.WpfInterop
             }
             if (_cachedRenderTarget != null)
             {
-                _cachedRenderTarget.Dispose();
+                if (_cachedRenderTarget.MultiSampleCount > 0 && UseASingleSharedGraphicsDevice)
+                {
+                    // TODO: this is a memoryleak, the code is intentional because Dispose actually crashes Monogame when using a shared graphicsdevice and disposing MSAA enabled rendertargets
+                    // at the very latest this will happen on window close, for SPA this is fine as the process will shut down
+                    // but if your editor has multiple windows (or tabs) that can be created/closed multiple times this will slowly increase memory usage..
+                }
+                else
+                {
+                    _cachedRenderTarget.Dispose();
+                }
                 _cachedRenderTarget = null;
             }
         }
