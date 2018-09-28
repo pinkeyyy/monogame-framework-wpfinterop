@@ -1,6 +1,6 @@
 # Changelog
 
-**v1.7.0 (not yet released)**
+**v1.7.0**
 
 * Upgraded to Monogame 3.7
     * fixes MSAA in DirectX based monogame
