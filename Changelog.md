@@ -9,11 +9,6 @@
 * by default, each WpfGame now has its own GraphicsDevice instance
     * to enable old behaviour of one global GraphicsDevice instance: call WpfGame.UseASingleSharedGraphicsDevice = true **before the first WpfGame instance is created**)
 
-TODOs:
-
-* check amount of calls to events of WpfGraphicsDeviceService (currently they are called like 3x on initial window create)
-* check if wpf designer is working or crashing
-
 **v1.6.0**
 
 Switch to Monogame 3.6 and content builder nuget (removes the dependency to install monogame locally).

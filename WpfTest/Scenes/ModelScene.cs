@@ -67,7 +67,7 @@ namespace WpfTest.Scenes
                 1.0f, 100.0f);
         }
 
-        protected override void Draw(GameTime time)
+        protected override void Draw(GameTime gameTime)
         {
             //The projection depends on viewport dimensions (aspect ratio).
             // Because WPF controls can be resized at any time (user resizes window)
@@ -79,11 +79,11 @@ namespace WpfTest.Scenes
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
             if (IsActive)
-                _rotation += (float)time.ElapsedGameTime.TotalMilliseconds / 1000 * MathHelper.TwoPi / 4;
+                _rotation += (float)gameTime.ElapsedGameTime.TotalMilliseconds / 1000 * MathHelper.TwoPi / 4;
 
             DrawModel(_model, _rotation);
 
-            base.Draw(time);
+            base.Draw(gameTime);
         }
 
         private void DrawModel(Model model, float modelRotation)
