@@ -20,7 +20,7 @@ ___
 
 ### MSAA based rendertargets will thrown an exception on Dispose
 
-Only occurs if WpfGame.UseASingleSharedGraphicsDevice is set to false (which is why it defaults to true).
+Only occurs if WpfGame.UseASingleSharedGraphicsDevice is set to false.
 
 ### Minor memory leak when WpfGame.UseASingleSharedGraphicsDevice = false
 
