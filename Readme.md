@@ -16,19 +16,7 @@ https://nuget.org/packages/MonoGame.Framework.WpfInterop/
 By adding the NuGet package to a project it is possible to host MonoGame inside WPF windows.
 
 ___
-## Known issues
 
-### MSAA based rendertargets will thrown an exception on Dispose
-
-Only occurs if WpfGame.UseASingleSharedGraphicsDevice is set to false.
-
-### Minor memory leak when WpfGame.UseASingleSharedGraphicsDevice = false
-
-The internal implementation uses one rendertarget per WpfGame, so if UseASingleSharedGraphicsDevice is set to false, disposing a WpfGame would crash (as it tried to Dispose the rendertarget, see the issue above).
-
-Instead the rendertarget will NOT be disposed (this causes a minor memory leak anytime you create & destroy a WpfGame instance).
-
-___
 ## Example
 
 ```csharp

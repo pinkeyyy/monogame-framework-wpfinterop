@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Framework.WpfInterop.Internals;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
@@ -48,6 +49,7 @@ namespace MonoGame.Framework.WpfInterop
         private SpriteBatch _spriteBatch;
         private double _dpiScalingFactor = 1;
         private static bool _useASingleSharedGraphicsDevice = false;
+        private List<IDisposable> _toBeDisposedNextFrame = new List<IDisposable>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="D3D11Host"/> class.
@@ -196,6 +198,7 @@ namespace MonoGame.Framework.WpfInterop
             // each of those has its own check for disposed
             StopRendering();
             UnitializeImageSource();
+            DisposeRenderTargetsFromPreviousFrames();
             if (GraphicsDeviceInitialized)
             {
                 UninitializeGraphicsDevice();
@@ -324,8 +327,10 @@ namespace MonoGame.Framework.WpfInterop
             _d3D11Image.SetBackBuffer(null);
             if (_sharedRenderTarget != null)
             {
-                _sharedRenderTarget.Dispose();
-                _sharedRenderTarget = null;
+                // can't directly dispose rendertargets now since Monogame needs it for one more frame
+                // (when a rendertarget is swapped, monogame still uses the old one for one more frame)
+                // so queue dispose for later
+                _toBeDisposedNextFrame.Add(_sharedRenderTarget);
             }
 
             var sampleCount = 0;
@@ -333,11 +338,11 @@ namespace MonoGame.Framework.WpfInterop
             {
                 // if there was a previous rendertarget, reuse its sample count
                 sampleCount = _cachedRenderTarget.MultiSampleCount;
-                _cachedRenderTarget.Dispose();
-                _cachedRenderTarget = null;
+                // can't directly dispose rendertargets now since Monogame needs it for one more frame
+                // (when a rendertarget is swapped, monogame still uses the old one for one more frame)
+                // so queue dispose for later
+                _toBeDisposedNextFrame.Add(_cachedRenderTarget);
             }
-            // if there was a previous rendertarget, reuse its sample count
-            //var sampleCount = _cachedRenderTarget?.MultiSampleCount ?? 0;
 
             int width = Math.Max((int)ActualWidth, 1);
             int height = Math.Max((int)ActualHeight, 1);
@@ -510,6 +515,11 @@ namespace MonoGame.Framework.WpfInterop
             if (!_isRendering)
                 return;
 
+            if (_toBeDisposedNextFrame.Count > 0)
+            {
+                DisposeRenderTargetsFromPreviousFrames();
+            }
+
             // Recreate back buffer if necessary.
             if (_resetBackBuffer || _dpiChanged)
             {
@@ -563,6 +573,15 @@ namespace MonoGame.Framework.WpfInterop
                                       // during window resizing.
 
             _resetBackBuffer = false;
+        }
+
+        private void DisposeRenderTargetsFromPreviousFrames()
+        {
+            for (int i = 0; i < _toBeDisposedNextFrame.Count; i++)
+            {
+                _toBeDisposedNextFrame[i]?.Dispose();
+                _toBeDisposedNextFrame.RemoveAt(i--);
+            }
         }
 
         private void StartRendering()
