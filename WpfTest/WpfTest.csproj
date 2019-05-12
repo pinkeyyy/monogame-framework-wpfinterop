@@ -112,6 +112,7 @@
     <Compile Include="Scenes\ModelScene.cs" />
     <Compile Include="Scenes\DpiScalingScene.cs" />
     <Compile Include="Scenes\MsaaScene.cs" />
+    <Compile Include="Scenes\SpriteScene.cs" />
     <Compile Include="Scenes\RenderTargetScene.cs" />
     <Compile Include="Scenes\TabScene.cs" />
     <Compile Include="Scenes\CubeDemoScene.cs" />
@@ -186,6 +187,11 @@
     <PackageReference Include="MonoGame.Framework.WindowsDX">
       <Version>3.7.0.1708</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Content\mech.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

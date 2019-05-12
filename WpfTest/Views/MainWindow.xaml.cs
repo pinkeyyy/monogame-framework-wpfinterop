@@ -83,5 +83,10 @@ namespace WpfTest.Views
         {
             OpenWindow<DpiScalingWindow>();
         }
+
+        private void OpenSpriteWindow(object sender, RoutedEventArgs e)
+        {
+            OpenCustomWindow(new SpriteScene(), "Sprite scene");
+        }
     }
 }
