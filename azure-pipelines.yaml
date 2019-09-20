@@ -30,6 +30,19 @@ steps:
 - checkout: self
   submodules: true
 
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+      $path = "$(Build.SourcesDirectory)\MonoGame.Framework.WpfInterop\Properties\AssemblyInfo.cs"
+      $replaced = [System.IO.File]::ReadAllText($path).Replace("// version placeholder", "[assembly: AssemblyVersion(`"$(PackageVersion).$(Build.BuildId)`")]`r`n[assembly: AssemblyInformationalVersion(`"$(SemanticVersion)`")]")
+      [System.IO.File]::WriteAllText($path, $replaced)
+    pwsh: true
+
+- task: NuGetToolInstaller@1
+  inputs:
+    versionSpec: '5.2.0'
+
 - task: NuGetCommand@2
   inputs:
     command: 'restore'
@@ -41,7 +54,6 @@ steps:
     solution: '**/*.sln'
     platform: 'Any CPU'
     configuration: '$(BuildConfiguration)'
-    msbuildArguments: '/p:Version=$(PackageVersion).$(Build.BuildId) /p:InformationalVersion=$(SemanticVersion)'
 
 - task: NuGetCommand@2
   inputs:
@@ -56,7 +68,7 @@ steps:
     ArtifactName: 'MonoGame.Framework.WpfInterop'
     targetPath: '$(build.artifactstagingdirectory)'
 
-    - task: NuGetCommand@2
+- task: NuGetCommand@2
   inputs:
     command: 'push'
     packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
