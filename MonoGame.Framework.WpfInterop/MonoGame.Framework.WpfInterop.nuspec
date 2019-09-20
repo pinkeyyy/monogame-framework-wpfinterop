@@ -6,7 +6,7 @@
         <version>0.0.0.0</version>
         <title>MonoGame.Framework.WpfInterop</title>
         <authors>MarcStan</authors>
-        <licenseUrl>https://github.com/MarcStan/MonoGame.Framework.WpfInterop/blob/master/LICENSE</licenseUrl>
+        <license type="expression">MIT</license>
         <projectUrl>https://github.com/MarcStan/MonoGame.Framework.WpfInterop</projectUrl>
         <description>MonoGame integration with WPF. This package provides the D3D11Host from the MonoGame WpfInteropSample. It extends it with WpfGame, WpfMouse and WpfKeyboard and makes it actually usable in any WPF application.</description>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -17,7 +17,7 @@
         </dependencies>
     </metadata>
     <files>
-        <file src="MonoGame.Framework.WpfInterop.dll;MonoGame.Framework.WpfInterop.xml" target="lib\net452" />
+        <file src="bin\Release\MonoGame.Framework.WpfInterop.dll;bin\Release\MonoGame.Framework.WpfInterop.xml" target="lib\net452" />
         <file src="readme.txt" />
     </files>
 </package>

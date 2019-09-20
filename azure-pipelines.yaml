@@ -30,11 +30,6 @@ steps:
 - checkout: self
   submodules: true
 
-- task: UseDotNet@2
-  inputs:
-    packageType: 'sdk'
-    useGlobalJson: true
-
 - task: NuGetCommand@2
   inputs:
     command: 'restore'
@@ -48,12 +43,12 @@ steps:
     configuration: '$(BuildConfiguration)'
     msbuildArguments: '/p:Version=$(PackageVersion).$(Build.BuildId) /p:InformationalVersion=$(SemanticVersion)'
 
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet pack MonoGame.Framework.WpfInterop'
+- task: NuGetCommand@2
   inputs:
-    command: custom
-    custom: pack
-    arguments: 'MonoGame.Framework.WpfInterop/MonoGame.Framework.WpfInterop.csproj -c $(BuildConfiguration) -o $(build.artifactstagingdirectory) -p:PackageVersion=$(SemanticVersion) --no-build'
+    command: 'pack'
+    packagesToPack: 'MonoGame.Framework.WpfInterop/MonoGame.Framework.WpfInterop.nuspec'
+    versioningScheme: 'byEnvVar'
+    versionEnvVar: 'SemanticVersion'
 
 - task: PublishPipelineArtifact@1
   displayName: 'Publish Artifact'
@@ -61,12 +56,13 @@ steps:
     ArtifactName: 'MonoGame.Framework.WpfInterop'
     targetPath: '$(build.artifactstagingdirectory)'
 
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet push'
+    - task: NuGetCommand@2
   inputs:
-    command: push
-    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+    nuGetFeedType: 'internal'
     publishVstsFeed: '96cf8193-e838-4a8e-9973-fdd3b259a768/ffddc5d6-b53b-439b-960f-af0d4b856cdf'
+    allowPackageConflicts: true
 
 - task: DotNetCoreCLI@2
   condition: and(succeeded(), eq(variables.PublishToNuget, 'true'))
