@@ -1,0 +1,71 @@
+# manually set these queue time variables (allowing users to override):
+# SemanticVersion: '$(PackageVersion)-preview.$(Build.BuildId)'
+# PublishToNuget: false
+# user can then override it:
+# "$(PackageVersion)-beta.1" if he wants to publish a specific preview
+# "$(PackageVersion)" if he wants to publish the final package version
+# all packages are pushed to public feed by default (https://pkgs.dev.azure.com/marcstanlive/Opensource/_packaging/Opensource@Local/nuget/v3/index.json)
+# set PublishToNuget to true to also push to nuget.org
+
+resources:
+- repo: self
+  clean: true
+trigger:
+  batch: true
+  branches:
+    include:
+    - master
+
+name: $(Major).$(Minor).$(Patch).$(Build.BuildId)
+pool:
+  name: Default
+variables:
+  BuildConfiguration: 'Release'
+  Major: '1'
+  Minor: '7'
+  Patch: '2'
+  PackageVersion: '$(Major).$(Minor).$(Patch)'
+
+steps:
+- checkout: self
+  submodules: true
+
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    useGlobalJson: true
+
+- task: MSBuild@1
+  inputs:
+    solution: '**/*.sln'
+    platform: 'Any CPU'
+    configuration: '$(BuildConfiguration)'
+    msbuildArguments: '/p:Version=$(PackageVersion).$(Build.BuildId) /p:InformationalVersion=$(SemanticVersion)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet pack MonoGame.Framework.WpfInterop'
+  inputs:
+    command: custom
+    custom: pack
+    arguments: 'MonoGame.Framework.WpfInterop/MonoGame.Framework.WpfInterop.csproj -c $(BuildConfiguration) -o $(build.artifactstagingdirectory) -p:PackageVersion=$(SemanticVersion) --no-build'
+
+- task: PublishPipelineArtifact@1
+  displayName: 'Publish Artifact'
+  inputs:
+    ArtifactName: 'MonoGame.Framework.WpfInterop'
+    targetPath: '$(build.artifactstagingdirectory)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet push'
+  inputs:
+    command: push
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    publishVstsFeed: '96cf8193-e838-4a8e-9973-fdd3b259a768/ffddc5d6-b53b-439b-960f-af0d4b856cdf'
+
+- task: DotNetCoreCLI@2
+  condition: and(succeeded(), eq(variables.PublishToNuget, 'true'))
+  inputs:
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    nuGetFeedType: 'external'
+    publishFeedCredentials: 'NuGet'

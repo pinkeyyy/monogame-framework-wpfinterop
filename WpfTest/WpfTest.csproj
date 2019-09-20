@@ -99,9 +99,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="..\GlobalVersionInfo.cs">
-      <Link>Properties\GlobalVersionInfo.cs</Link>
-    </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -185,7 +182,7 @@
       <Version>3.7.0.9</Version>
     </PackageReference>
     <PackageReference Include="MonoGame.Framework.WindowsDX">
-      <Version>3.7.0.1708</Version>
+      <Version>3.7.1.189</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
