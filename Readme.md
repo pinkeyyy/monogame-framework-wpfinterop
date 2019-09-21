@@ -1,23 +1,14 @@
-[Gitlab](https://gitlab.com/MarcStan) is just a read-only mirror, [github](https://github.com/MarcStan) has the most up-to-date content.
-
 # MonoGame WPF Interop
 
-This adds WPF support to MonoGame (upgraded to and tested with MonoGame 3.7, requires **MonoGame.Framework.WindowsDX**).
+This (unoffical) package adds WPF support to MonoGame (tested with MonoGame 3.7, requires **MonoGame.Framework.WindowsDX**).
 
 You can host as many MonoGame controls in Wpf as you want by using the WpfGame control. Note that they are however limited to 60 FPS (this is a WPF limit).
 
+## NuGet
 ___
-## Available on NuGet  [![NuGet Status](https://img.shields.io/nuget/v/MonoGame.Framework.WpfInterop.svg?style=flat)](https://www.nuget.org/packages/MonoGame.Framework.WpfInterop/)
+### [MonoGame.Framework.WpfInterop](https://nuget.org/packages/MonoGame.Framework.WpfInterop/) [![NuGet Status](https://img.shields.io/nuget/v/MonoGame.Framework.WpfInterop.svg?style=flat)](https://www.nuget.org/packages/MonoGame.Framework.WpfInterop/)
 
-https://nuget.org/packages/MonoGame.Framework.WpfInterop/
-
-    PM> Install-Package MonoGame.Framework.WpfInterop
-   
-By adding the NuGet package to a project it is possible to host MonoGame inside WPF windows.
-
-___
-
-## Example
+## Example usage
 
 ```csharp
 
@@ -61,7 +52,9 @@ public class MyGame : WpfGame
 
 Now you can use it in any of your WPF forms:
 
-&lt;MyGame Width="800" Height="480" />
+```
+<MyGame Width="800" Height="480" />
+```
 
 # Breaking changes (compared to monogame)
 
