@@ -1,0 +1,18 @@
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: nuget/setup-nuget@v1.0.2
+      with:
+        nuget-version: 5.x
+    - run: nuget restore
+    - uses: microsoft/setup-msbuild@v1
+    - name: build
+      run: msbuild /p:Configuration=Release /p:"Platform=Any CPU"
+      shell: cmd
