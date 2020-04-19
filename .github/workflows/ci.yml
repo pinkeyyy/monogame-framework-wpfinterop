@@ -7,12 +7,12 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: nuget/setup-nuget@v1.0.2
+    - uses: actions/checkout@01aecccf739ca6ff86c0539fbc67a7a5007bbc81 # pin@v2 
+    - uses: nuget/setup-nuget@255f46e14d51fbc603743e2aa2907954463fbeb9 # pin@v1.0.2 
       with:
         nuget-version: 5.x
     - run: nuget restore
-    - uses: microsoft/setup-msbuild@v1
+    - uses: microsoft/setup-msbuild@fc16ae6170877cd889e5d735ea9d41c2362078b2 # pin@v1 
     - name: build
       run: msbuild /p:Configuration=Release /p:"Platform=Any CPU"
       shell: cmd
