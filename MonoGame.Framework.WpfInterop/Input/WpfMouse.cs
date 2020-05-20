@@ -1,8 +1,10 @@
 ﻿using Microsoft.Xna.Framework.Input;
 using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 
 namespace MonoGame.Framework.WpfInterop.Input
@@ -19,6 +21,7 @@ namespace MonoGame.Framework.WpfInterop.Input
 
         private MouseState _mouseState;
         private bool _captureMouseWithin = true;
+        private int hscrollamount = 0;
 
         #endregion
 
@@ -44,6 +47,44 @@ namespace MonoGame.Framework.WpfInterop.Input
             _focusElement.MouseLeftButtonUp += HandleMouse;
             _focusElement.MouseRightButtonDown += HandleMouse;
             _focusElement.MouseRightButtonUp += HandleMouse;
+
+            var source = PresentationSource.FromDependencyObject(_focusElement);
+            ((HwndSource)source)?.AddHook(Hook);
+        }
+        const int WM_MOUSEHWHEEL = 0x020E;
+        private IntPtr Hook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            switch (msg)
+            {
+                case WM_MOUSEHWHEEL:
+                    int tilt = (short)HIWORD(wParam);
+                    OnMouseTilt(tilt);
+                    return (IntPtr)1;
+            }
+            return IntPtr.Zero;
+        }
+
+        private void OnMouseTilt(int tilt)
+        {
+            hscrollamount = tilt;
+            _mouseState = new MouseState(_mouseState.X, _mouseState.Y, _mouseState.ScrollWheelValue, _mouseState.LeftButton, _mouseState.MiddleButton, _mouseState.RightButton, _mouseState.XButton1, _mouseState.XButton2, _mouseState.HorizontalScrollWheelValue + hscrollamount);
+        }
+        /// <summary>
+        /// Gets high bits values of the pointer.
+        /// </summary>
+        private static int HIWORD(IntPtr ptr)
+        {
+            var val32 = ptr.ToInt32();
+            return ((val32 >> 16) & 0xFFFF);
+        }
+
+        /// <summary>
+        /// Gets low bits values of the pointer.
+        /// </summary>
+        private static int LOWORD(IntPtr ptr)
+        {
+            var val32 = ptr.ToInt32();
+            return (val32 & 0xFFFF);
         }
 
         #endregion
@@ -84,6 +125,8 @@ namespace MonoGame.Framework.WpfInterop.Input
         {
             if (e.Handled)
                 return;
+
+            Debug.WriteLine("firing");
 
             var pos = e.GetPosition(_focusElement);
 
@@ -150,7 +193,9 @@ namespace MonoGame.Framework.WpfInterop.Input
 
                         _mouseState = new MouseState(_mouseState.X, _mouseState.Y, _mouseState.ScrollWheelValue,
                             (ButtonState) e.LeftButton, (ButtonState) e.MiddleButton, (ButtonState) e.RightButton, (ButtonState) e.XButton1,
-                            (ButtonState) e.XButton2);
+                            (ButtonState) e.XButton2, _mouseState.HorizontalScrollWheelValue + hscrollamount);
+
+                        hscrollamount = 0;
                         // only release if LeftMouse is up
                         if (e.LeftButton == MouseButtonState.Released)
                         {
@@ -197,7 +242,8 @@ namespace MonoGame.Framework.WpfInterop.Input
             e.Handled = true;
             var m = _mouseState;
             var w = e as MouseWheelEventArgs;
-            _mouseState = new MouseState((int) pos.X, (int) pos.Y, m.ScrollWheelValue + (w?.Delta ?? 0), (ButtonState) e.LeftButton, (ButtonState) e.MiddleButton, (ButtonState) e.RightButton, (ButtonState) e.XButton1, (ButtonState) e.XButton2);
+            _mouseState = new MouseState((int) pos.X, (int) pos.Y, m.ScrollWheelValue + (w?.Delta ?? 0), (ButtonState) e.LeftButton, (ButtonState) e.MiddleButton, (ButtonState) e.RightButton, (ButtonState) e.XButton1, (ButtonState) e.XButton2, m.HorizontalScrollWheelValue + hscrollamount);
+            hscrollamount = 0;
         }
 
         private static double Clamp(double v, int min, double max)
